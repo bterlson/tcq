@@ -4,7 +4,10 @@
   "description": "A TC39 Discussion Queue",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build-frontend": "webpack --config ./src/client/webpack.config.js",
+    "build-frontend-watch": "webpack --watch --config ./src/client/webpack.config.js",
+    "build-backend": "tsc -p ./src/server",
+    "iterate": "npm run build-backend && concurrently \"npm run build-frontend-watch\" \"node ./dist/server/server.js\""
   },
   "author": "Brian Terlson",
   "license": "ISC",
@@ -22,6 +25,7 @@
     "@types/node": "^8.0.28",
     "@types/passport": "^0.3.4",
     "@types/passport-github": "^1.1.1",
+    "concurrently": "^3.5.0",
     "html-webpack-plugin": "^2.30.1",
     "ts-loader": "^2.3.7",
     "typescript": "^2.6.0-dev.20170919",

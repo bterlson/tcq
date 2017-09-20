@@ -1,0 +1,6 @@
+set-secrets.ps1
+.vscode
+
+node_modules
+
+dist

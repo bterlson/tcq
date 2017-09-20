@@ -10,7 +10,7 @@
     "iterate": "npm run build-backend && concurrently \"npm run build-frontend-watch\" \"node ./dist/server/server.js\""
   },
   "author": "Brian Terlson",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "dependencies": {
     "body-parser": "^1.18.1",
     "express": "^4.15.4",

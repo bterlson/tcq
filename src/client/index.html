@@ -1,166 +1,138 @@
 <!DOCTYPE html>
 <style>
-body {
-  margin: 0;
-  padding: 0;
-  height: 100vh;
-  width: 100%;
-  font-family: "Segoe UI Light", sans-serif;
-}
+  body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100%;
+    font-family: "Segoe UI Light", sans-serif;
+  }
 
-h2 {
-  margin: 0;
-}
+  h2 {
+    margin: 0;
+  }
 
-#info {
-  display: flex;
-  background-color: #eee;
-  border-bottom: 1px solid #ccc;
-  padding: 5px 10px;
-}
+  #info {
+    display: flex;
+    background-color: #eee;
+    border-bottom: 1px solid #ccc;
+    padding: 5px 10px;
+  }
 
-#info > div {
-  width: 50%;
-  box-sizing: border-box;
-}
+  #info>div {
+    width: 50%;
+    box-sizing: border-box;
+  }
 
-#current-speaker {
-  width: 50%;
-}
+  #current-speaker {
+    width: 50%;
+  }
 
-#your-position {
-  display: flex;
-  flex-wrap: wrap;
-  width: 50%;
-}
+  #your-position {
+    display: flex;
+    flex-wrap: wrap;
+    width: 50%;
+  }
 
-#your-position h2 {
-  width: 100%;
-}
+  #your-position h2 {
+    width: 100%;
+  }
 
-#queue-position-num {
-  font-size: 24px;
-  font-family: "Segoe UI", sans-serif;
-  width: 25%;
-  height: 50px;
-  line-height: 50px;
-}
+  #queue-position-num {
+    font-size: 24px;
+    font-family: "Segoe UI", sans-serif;
+    width: 25%;
+    height: 50px;
+    line-height: 50px;
+  }
 
-#queue-position-leave {
-  font-size: 20px;
-  line-height: 30px;
-  background-color: #633;
-  width: 100%;
-  text-align: center;
-  font-weight: bold;
-  color: #eee;
-}
+  #queue-position-leave {
+    font-size: 20px;
+    line-height: 30px;
+    background-color: #633;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    color: #eee;
+  }
 
 
-#app {
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-content: stretch;
-}
+  #app {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-content: stretch;
+  }
 
-#queue-container {
-  flex-grow: 1;
-  height: 1;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  padding: 5px 10px;
-}
+  #queue-container {
+    flex-grow: 1;
+    height: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 5px 10px;
+  }
 
-.queue-item {
-  box-sizing: border-box;
-}
+  .queue-item {
+    box-sizing: border-box;
+  }
 
-#speaker-controls > div {
-  border: 2px solid #000;
-  padding: 5px 10px;
-  box-sizing: border-box;
-  height: 75px;
-  font-size: 20px;
-  line-height: 60px;
-  white-space: nowrap;
-  color: #eee;
-}
+  #speaker-controls>div {
+    border: 2px solid #000;
+    padding: 5px 10px;
+    box-sizing: border-box;
+    height: 75px;
+    font-size: 20px;
+    line-height: 60px;
+    white-space: nowrap;
+    color: #eee;
+  }
 
-#speaker-discuss {
-  width: 100%;
-  background-color: #565;
-}
+  #speaker-discuss {
+    width: 100%;
+    background-color: #565;
+  }
 
-#speaker-question {
-  width: 50%;
-  background-color: #773;
-}
+  #speaker-question {
+    width: 50%;
+    background-color: #773;
+  }
 
-#speaker-poo {
-  width: 50%;
-  background-color: #633;
-}
+  #speaker-poo {
+    width: 50%;
+    background-color: #633;
+  }
 
-#speaker-controls {
-  display: flex;
-  flex-wrap: wrap;
-  font-weight: bold;
-  text-align: center;
-  letter-spacing: 1px;
-  justify-content: space-between;
-}
+  #speaker-controls {
+    display: flex;
+    flex-wrap: wrap;
+    font-weight: bold;
+    text-align: center;
+    letter-spacing: 1px;
+    justify-content: space-between;
+  }
 </style>
 
 <div id="app">
-    <div id="info">
-      <div id="current-speaker">
-        <h2>Current speaker</h2>
-        Brian Terlson<br>
-        Microsoft
+  <div id="info">
+    <current-speaker :speaker="currentSpeaker"></current-speaker>
+    <div id="your-position">
+      <h2>You are #7 in the queue</h2>
+      <div id="queue-position-leave">
+        Leave
       </div>
-      <div id="your-position">
-        <h2>You are #7 in the queue</h2>
-        <div id="queue-position-leave">
-          Leave
-        </div>
-      </div>
-    </div>
-    <div id="queue-container">
-      <h2>Speaker Queue</h2>
-      <div class="queue-item">
-        Daniel Rosenwasser (Microsoft)
-      </div>
-      <div class="queue-item">
-        Yehuda Katz (Tilde)
-      </div>
-      <div class="queue-item">
-        David Herman (LinkedIn)
-      </div>
-      <div class="queue-item">
-        aaa
-      </div>
-      <div class="queue-item">
-        bbb
-      </div>
-      <div class="queue-item">
-        aaa
-      </div>
-      <div class="queue-item">
-        bbb
-      </div>
-      <div class="queue-item">
-        aaa
-      </div>
-      <div class="queue-item">
-        bbb
-      </div>
-    </div>
-    <div id="speaker-controls">
-      <div id="speaker-discuss">Discuss</div>
-      <div id=speaker-question>Clarifying Question</div>
-      <div id=speaker-poo>Point of Order</div>
     </div>
   </div>
+  <div id="queue-container">
+    <h2>Speaker Queue</h2>
+    <div v-for="speaker in queuedSpeakers">
+      <queued-speaker :key="speaker.id" v-bind="speaker"></queued-speaker>
+    </div>
+  </div>
+  <div id="speaker-controls">
+    <div id="speaker-discuss">Discuss</div>
+    <div id=speaker-question>Clarifying Question</div>
+    <div id=speaker-poo>Point of Order</div>
+  </div>
+</div>

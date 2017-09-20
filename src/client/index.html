@@ -116,10 +116,7 @@
 
 <div id="app">
   <div id="info">
-    <div id="current-speaker">
-      <h2>Current speaker</h2>
-      Brian Terlson<br> Microsoft
-    </div>
+    <current-speaker :speaker="currentSpeaker"></current-speaker>
     <div id="your-position">
       <h2>You are #7 in the queue</h2>
       <div id="queue-position-leave">
@@ -129,33 +126,7 @@
   </div>
   <div id="queue-container">
     <h2>Speaker Queue</h2>
-    <div class="queue-item">
-      Daniel Rosenwasser (Microsoft)
-    </div>
-    <div class="queue-item">
-      Yehuda Katz (Tilde)
-    </div>
-    <div class="queue-item">
-      David Herman (LinkedIn)
-    </div>
-    <div class="queue-item">
-      aaa
-    </div>
-    <div class="queue-item">
-      bbb
-    </div>
-    <div class="queue-item">
-      aaa
-    </div>
-    <div class="queue-item">
-      bbb
-    </div>
-    <div class="queue-item">
-      aaa
-    </div>
-    <div class="queue-item">
-      bbb
-    </div>
+    <queued-speaker v-for="speaker in queuedSpeakers" :key="speaker.id" v-bind="speaker"></queued-speaker>
   </div>
   <div id="speaker-controls">
     <div id="speaker-discuss">Discuss</div>

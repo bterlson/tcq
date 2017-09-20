@@ -126,9 +126,7 @@
   </div>
   <div id="queue-container">
     <h2>Speaker Queue</h2>
-    <div v-for="speaker in queuedSpeakers">
-      <queued-speaker :key="speaker.id" v-bind="speaker"></queued-speaker>
-    </div>
+    <queued-speaker v-for="speaker in queuedSpeakers" :key="speaker.id" v-bind="speaker"></queued-speaker>
   </div>
   <div id="speaker-controls">
     <div id="speaker-discuss">Discuss</div>

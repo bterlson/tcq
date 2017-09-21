@@ -1,4 +1,3 @@
 export const HOST = 'https://tcq.documents.azure.com:443/';
-export const ID = 'tcq';
-export const COLLECTION = 'items';
-
+export const DATABASE_ID = 'tcq';
+export const COLLECTION_ID = 'items';

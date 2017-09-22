@@ -77,32 +77,7 @@
   .queue-item {
     box-sizing: border-box;
   }
-
-  #speaker-controls>div {
-    border: 2px solid #000;
-    padding: 5px 10px;
-    box-sizing: border-box;
-    height: 75px;
-    font-size: 20px;
-    line-height: 60px;
-    white-space: nowrap;
-    color: #eee;
-  }
-
-  #speaker-discuss {
-    width: 100%;
-    background-color: #565;
-  }
-
-  #speaker-question {
-    width: 50%;
-    background-color: #773;
-  }
-
-  #speaker-poo {
-    width: 50%;
-    background-color: #633;
-  }
+  /* Speaker Controls */
 
   #speaker-controls {
     display: flex;
@@ -110,27 +85,79 @@
     font-weight: bold;
     text-align: center;
     letter-spacing: 1px;
-    justify-content: space-between;
+    justify-content: space-around;
+    background-color: #333;
+    padding: 5px 0;
+  }
+
+  #speaker-controls>div {
+    font-size: 20px;
+    line-height: 50px;
+    white-space: nowrap;
+    color: #eee;
+  }
+  /* New Topic Control */
+
+  #new-topic-control {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 5px;
+    flex-grow: 1;
+  }
+
+  #new-topic-form {
+    width: 100%;
+    display: none;
+    padding: 0 5px;
+    height: 52px;
+  }
+
+  #new-topic-control.active #new-topic-form {
+    display: flex;
+  }
+
+  #new-topic {
+    width: 48%;
+    background-color: #565;
+    border: 1px solid #797;
+  }
+
+  #new-topic-control.active #new-topic {
+    display: none;
+  }
+
+  #reply {
+    width: 48%;
+    background-color: #565;
+    border: 1px solid #797;
+  }
+
+  #new-topic-control.active #reply {
+    display: none;
+  }
+
+  #new-topic-form input {
+    flex-grow: 4
+  }
+
+  #new-topic-form button {
+    flex-grow: 1
+  }
+
+  #speaker-question {
+    width: 48%;
+    background-color: #773;
+    border: 1px solid #996;
+  }
+
+  #speaker-poo {
+    width: 48%;
+    background-color: #633;
+    border: 1px solid #966;
   }
 </style>
 
 <div id="app">
-  <div id="info">
-    <current-speaker :speaker="currentSpeaker"></current-speaker>
-    <div id="your-position">
-      <h2>You are #7 in the queue</h2>
-      <div id="queue-position-leave">
-        Leave
-      </div>
-    </div>
-  </div>
-  <div id="queue-container">
-    <h2>Speaker Queue</h2>
-    <queued-speaker v-for="speaker in queuedSpeakers" :key="speaker.id" v-bind="speaker"></queued-speaker>
-  </div>
-  <div id="speaker-controls">
-    <div id="speaker-discuss">Discuss</div>
-    <div id=speaker-question>Clarifying Question</div>
-    <div id=speaker-poo>Point of Order</div>
-  </div>
+
 </div>

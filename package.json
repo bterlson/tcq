@@ -28,7 +28,7 @@
     "concurrently": "^3.5.0",
     "html-webpack-plugin": "^2.30.1",
     "ts-loader": "^2.3.7",
-    "typescript": "^2.6.0-dev.20170919",
+    "typescript": "^2.6.0-dev.20170920",
     "webpack": "^3.6.0"
   }
 }

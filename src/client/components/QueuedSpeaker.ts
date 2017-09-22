@@ -1,19 +1,23 @@
-import Vue from "vue";
+import Vue from 'vue';
+import Speaker from '../../shared/speaker';
+
+const template = `
+<div class="queue-item">
+    <span>{{speaker.firstName}} {{speaker.lastName}}</span>{{displayedOrg}}
+</div>
+`;
+console.log('here!');
 
 export const QueuedSpeaker = Vue.extend({
-    props: {
-        firstName: String,
-        lastName: String,
-        organization: String,
-    },
-    template: `
-        <div class="queue-item">
-            <span>{{firstName}} {{lastName}}</span>{{displayedOrg}}
-        </div>
-    `,
-    computed: {
-        displayedOrg(): string {
-            return this.organization ? ` (${this.organization})` : "";
-        }
+  template,
+  props: {
+    speaker: {
+      default: {} as Speaker
     }
+  },
+  computed: {
+    displayedOrg(): string {
+      return ` (${this.speaker.organization})`;
+    }
+  }
 });

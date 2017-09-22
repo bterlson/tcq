@@ -1,8 +1,7 @@
-import Vue from "vue";
+import Vue from 'vue';
+import Speaker from '../../shared/speaker';
 
-export const CurrentSpeaker = Vue.extend({
-    props: ["speaker"],
-    template: `
+const template = `
     <div v-if="speaker" id="current-speaker">
         <h2>Current speaker</h2>
         <div>{{speaker.firstName}} {{speaker.lastName}}</div>
@@ -10,5 +9,16 @@ export const CurrentSpeaker = Vue.extend({
     </div>
     <div v-else>
         <h2>No active speaker</h2>
-    </div>`
-})
+    </div>
+`;
+
+let str = 'hello';
+
+export const CurrentSpeaker = Vue.extend({
+  props: {
+    speaker: {
+      default: {} as Speaker
+    }
+  },
+  template
+});

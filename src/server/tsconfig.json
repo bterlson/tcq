@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "../../dist/server",
+    "outDir": "../../dist",
     "lib": ["es2017"],
     /* Basic Options */
     "target":

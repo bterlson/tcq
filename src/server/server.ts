@@ -5,7 +5,8 @@ import routes from './router';
 import * as socketio from 'socket.io';
 import { Server } from 'http';
 import * as Session from 'express-session';
-
+import Speaker from '../shared/speaker';
+console.log('starting!');
 const app = express();
 const server = new Server(app);
 const io = socketio(server);
@@ -27,13 +28,13 @@ app.use(passport.session());
 app.use(routes);
 app.use(express.static('dist/client/'));
 
-const currentSpeaker = {
+const currentSpeaker: Speaker = {
   name: 'Brian Terlson',
   organization: 'Microsoft',
-  topic: 'Awesomeness'
+  topic: 'The definition for the production FunctionDeclaration is incorrect'
 };
 
-const queuedSpeakers = [
+const queuedSpeakers: Speaker[] = [
   {
     name: 'Brian Terlson',
     organization: 'Microsoft',
@@ -60,7 +61,7 @@ io.on('connection', function(socket) {
   let user = (socket.handshake as any).session.passport.user;
   socket.emit('state', { currentSpeaker, queuedSpeakers });
   socket.on('newTopic', function(data: any) {
-    const speaker = { name: user.name, organization: user.company, topic: data.topic };
+    const speaker: Speaker = { name: user.name, organization: user.company, topic: data.topic };
     queuedSpeakers.push(speaker);
     socks.forEach(s => {
       s.emit('newSpeaker', {
@@ -69,6 +70,7 @@ io.on('connection', function(socket) {
       });
     });
   });
+
   socket.on('disconnect', function() {
     socks.delete(socket);
   });

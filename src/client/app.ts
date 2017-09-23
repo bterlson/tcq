@@ -3,6 +3,7 @@ import { QueuedSpeaker } from './components/QueuedSpeaker';
 import { CurrentSpeaker } from './components/CurrentSpeaker';
 import { NewTopicControl } from './components/NewTopicControl';
 import * as socketio from 'socket.io-client';
+import Speaker from '../shared/speaker';
 
 const template = `
 <div id=app>
@@ -39,8 +40,8 @@ let app = new Vue({
   el: '#app',
   template,
   data: {
-    currentSpeaker: null as Object | null,
-    queuedSpeakers: [] as Object[]
+    currentSpeaker: null as Speaker | null,
+    queuedSpeakers: [] as Speaker[]
   },
   components: {
     QueuedSpeaker,

@@ -3,7 +3,7 @@ import Speaker from '../../shared/speaker';
 
 const template = `
 <div class="queue-item">
-    <span>{{speaker.name}}</span>{{displayedOrg}}
+    <span>{{speaker.name}}</span>{{displayedOrg}}: {{speaker.topic}}
 </div>
 `;
 
@@ -18,7 +18,7 @@ export const QueuedSpeaker = Vue.extend({
   },
   computed: {
     displayedOrg(): string {
-      return ` (${this.speaker.organization})`;
+      return this.speaker.organization ? ` (${this.speaker.organization})` : '';
     }
   }
 });

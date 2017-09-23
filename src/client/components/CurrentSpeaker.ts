@@ -17,7 +17,7 @@ let str = 'hello';
 export const CurrentSpeaker = Vue.extend({
   props: {
     speaker: {
-      default: {} as Speaker
+      default: null as Speaker | null
     }
   },
   template

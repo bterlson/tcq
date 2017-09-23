@@ -10,7 +10,7 @@ import {
 } from './promisifed-docdb';
 import { DATABASE_ID } from './db';
 import uuid = require('uuid');
-import { Meeting, DocumentDB } from './database-types';
+import { Meeting } from './database-types';
 
 function wrap(fn: (req: express.Request, res: express.Response) => Promise<void>) {
   return function(req: express.Request, res: express.Response, next: any): void {

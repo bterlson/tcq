@@ -7,7 +7,8 @@
     "build-frontend": "webpack --config ./src/client/webpack.config.js",
     "build-frontend-watch": "webpack --watch --config ./src/client/webpack.config.js",
     "build-backend": "tsc -p ./src/server",
-    "iterate": "npm run build-backend && concurrently \"npm run build-frontend-watch\" \"node ./dist/server/server.js\""
+    "iterate":
+      "npm run build-backend && concurrently \"npm run build-frontend-watch\" \"node ./dist/server/server.js\""
   },
   "author": "Brian Terlson",
   "license": "Apache-2.0",
@@ -18,13 +19,20 @@
     "github": "^11.0.0",
     "passport": "^0.4.0",
     "passport-github": "^1.1.0",
+    "socket.io": "^2.0.3",
+    "socket.io-client": "^2.0.3",
+    "uuid": "^3.1.0",
     "vue": "github:herringtondarkholme/vue#new-type"
   },
   "devDependencies": {
     "@types/express": "^4.0.37",
+    "@types/express-session": "^1.15.3",
     "@types/node": "^8.0.28",
     "@types/passport": "^0.3.4",
     "@types/passport-github": "^1.1.1",
+    "@types/socket.io": "^1.4.30",
+    "@types/socket.io-client": "^1.4.30",
+    "@types/uuid": "^3.4.2",
     "concurrently": "^3.5.0",
     "html-webpack-plugin": "^2.30.1",
     "ts-loader": "^2.3.7",

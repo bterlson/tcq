@@ -2,24 +2,7 @@ import Vue from 'vue';
 import { QueuedSpeaker } from './components/QueuedSpeaker';
 import { CurrentSpeaker } from './components/CurrentSpeaker';
 import { NewTopicControl } from './components/NewTopicControl';
-
-const currentSpeaker = {
-  firstName: 'Brian',
-  lastName: 'Terlson',
-  organization: 'Microsoft'
-};
-
-const queuedSpeakers = [
-  { firstName: 'Daniel', lastName: 'Rosenwasser', organization: 'Microsoft' },
-  { firstName: 'Yehuda', lastName: 'Katz', organization: 'Tilde' },
-  { firstName: 'David', lastName: 'Herman', organization: 'LinkedIn' },
-  { firstName: 'aaa', lastName: '', organization: '' },
-  { firstName: 'bbb', lastName: '', organization: '' },
-  { firstName: 'aaa', lastName: '', organization: '' },
-  { firstName: 'bbb', lastName: '', organization: '' },
-  { firstName: 'aaa', lastName: '', organization: '' },
-  { firstName: 'bbb', lastName: '', organization: '' }
-].map((speaker, id) => ({ ...speaker, id }));
+import * as socketio from 'socket.io-client';
 
 const template = `
 <div id=app>
@@ -38,12 +21,19 @@ const template = `
 </div>
 `;
 
+let socket = socketio.connect('http://localhost:3000');
+
+socket.on('state', (data: any) => {
+  app.queuedSpeakers = data.queuedSpeakers;
+  app.currentSpeaker = data.currentSpeaker;
+});
+
 let app = new Vue({
   el: '#app',
   template,
   data: {
-    currentSpeaker,
-    queuedSpeakers
+    currentSpeaker: null as Object | null,
+    queuedSpeakers: []
   },
   components: {
     QueuedSpeaker,

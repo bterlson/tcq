@@ -3,9 +3,10 @@ import Speaker from '../../shared/speaker';
 
 const template = `
 <div class="queue-item">
-    <span>{{speaker.firstName}} {{speaker.lastName}}</span>{{displayedOrg}}
+    <span>{{speaker.name}}</span>{{displayedOrg}}
 </div>
 `;
+
 console.log('here!');
 
 export const QueuedSpeaker = Vue.extend({

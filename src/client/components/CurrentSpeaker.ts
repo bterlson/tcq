@@ -4,7 +4,7 @@ import Speaker from '../../shared/speaker';
 const template = `
     <div v-if="speaker" id="current-speaker">
         <h2>Current speaker</h2>
-        <div>{{speaker.firstName}} {{speaker.lastName}}</div>
+        <div>{{speaker.name}}</div>
         <div v-show="speaker.organization">{{speaker.organization}}</div>
     </div>
     <div v-else>

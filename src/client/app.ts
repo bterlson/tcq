@@ -31,12 +31,16 @@ socket.on('state', (data: any) => {
   app.currentSpeaker = data.currentSpeaker;
 });
 
+socket.on('newSpeaker', (data: any) => {
+  app.queuedSpeakers.splice(data.position, 0, data.speaker);
+});
+
 let app = new Vue({
   el: '#app',
   template,
   data: {
     currentSpeaker: null as Object | null,
-    queuedSpeakers: []
+    queuedSpeakers: [] as Object[]
   },
   components: {
     QueuedSpeaker,
@@ -46,7 +50,9 @@ let app = new Vue({
   methods: {
     clarify() {},
     poo() {},
-    newTopic(description: string) {},
+    newTopic(description: string) {
+      socket.emit('newTopic', { topic: description });
+    },
     newReply() {}
   }
 });

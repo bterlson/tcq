@@ -28,39 +28,51 @@ app.use(routes);
 app.use(express.static('dist/client/'));
 
 const currentSpeaker = {
-  firstName: 'Brian',
-  lastName: 'Terlson',
+  name: 'Brian Terlson',
   organization: 'Microsoft',
   topic: 'Awesomeness'
 };
 
 const queuedSpeakers = [
   {
-    firstName: 'Daniel',
-    lastName: 'Rosenwasser',
+    name: 'Brian Terlson',
     organization: 'Microsoft',
     topic: 'What is awesome?'
   },
-  { firstName: 'Yehuda', lastName: 'Katz', organization: 'Tilde', topic: 'Hello' },
-  { firstName: 'David', lastName: 'Herman', organization: 'LinkedIn', topic: 'This is a topic' }
-].map((speaker, id) => ({ ...speaker, id }));
+  { name: 'Yehuda Katz', organization: 'Tilde', topic: 'Hello' },
+  { name: 'David Herman', organization: 'LinkedIn', topic: 'This is a topic' }
+];
 
 io.use(function(socket, next) {
   var req = socket.handshake;
   var res = {};
-  console.log(socket.handshake);
-  debugger;
   session(req as any, res as any, next);
 });
 
+let socks = new Set();
 io.on('connection', function(socket) {
-  if (!socket.handshake.session || !socket.handshake.session.passport) {
+  socks.add(socket);
+  if (!(socket.handshake as any).session || !(socket.handshake as any).session.passport) {
     // not logged in I guess? Or session not found?
     socket.disconnect();
     return;
   }
+  let user = (socket.handshake as any).session.passport.user;
   socket.emit('state', { currentSpeaker, queuedSpeakers });
-  socket.on('newTopic', function(data: any) {});
+  socket.on('newTopic', function(data: any) {
+    socks.forEach(s => {
+      const speaker = { name: user.name, organization: user.company, topic: data.topic };
+      s.emit('newSpeaker', {
+        position: queuedSpeakers.length,
+        speaker
+      });
+      queuedSpeakers.push(speaker);
+    });
+  });
+  socket.on('end', function() {
+    console.log('deleting');
+    socks.delete(socket);
+  });
 });
 
 export default app;

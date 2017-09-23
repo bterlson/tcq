@@ -16,8 +16,10 @@ const template = `
      type=text
      v-model=topicName
      @keyup.enter=submitTopic
+     @keyup.esc=hide
      placeholder="Short topic description" />
-    <button @click=submitTopic>Submit</button>
+    <button @click=submitTopic class="button-submit">Submit</button>
+    <button @click=hide class="button-cancel">Cancel</button>
   </div>
 </div>
 `;
@@ -42,7 +44,9 @@ export const NewTopicControl = Vue.extend({
     },
     submitTopic() {
       this.$emit('new-topic', this.topicName);
-
+      this.hide();
+    },
+    hide() {
       this.topicName = '';
       let el = this.$refs.container as Element;
       el.classList.remove('active');

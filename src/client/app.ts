@@ -53,9 +53,7 @@ let app = new Vue({
   methods: {
     clarify() {},
     poo() {},
-    newTopic(description: string) {
-      alert(description);
-    },
+    newTopic(description: string) {},
     newReply() {}
   }
 });

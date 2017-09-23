@@ -11,8 +11,11 @@ const server = new Server(app);
 const io = socketio(server);
 server.listen(3000);
 
+const sessionStore = new Session.MemoryStore();
+
 const session = Session({
   secret: secrets.SESSION_SECRET,
+  store: sessionStore,
   resave: true,
   saveUninitialized: true
 });
@@ -21,8 +24,8 @@ app.use(require('body-parser').urlencoded({ extended: true }));
 app.use(session);
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(express.static('dist/client/'));
 app.use(routes);
+app.use(express.static('dist/client/'));
 
 const currentSpeaker = {
   firstName: 'Brian',
@@ -43,15 +46,19 @@ const queuedSpeakers = [
 ].map((speaker, id) => ({ ...speaker, id }));
 
 io.use(function(socket, next) {
-  // stack overflow assures me this is how to inject session
-  session(socket.handshake as any, {} as any, next);
+  var req = socket.handshake;
+  var res = {};
+  console.log(socket.handshake);
+  debugger;
+  session(req as any, res as any, next);
 });
 
 io.on('connection', function(socket) {
-  // and yes, this object is populated.... however it doesn't seem to contain anything useful.
-  console.log(JSON.stringify(socket.handshake.session));
-  console.log(socket.request.headers);
-  console.log(socket.handshake.session.accessToken);
+  if (!socket.handshake.session || !socket.handshake.session.passport) {
+    // not logged in I guess? Or session not found?
+    socket.disconnect();
+    return;
+  }
   socket.emit('state', { currentSpeaker, queuedSpeakers });
   socket.on('newTopic', function(data: any) {});
 });

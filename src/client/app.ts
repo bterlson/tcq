@@ -21,7 +21,10 @@ const template = `
 </div>
 `;
 
-let socket = socketio.connect('http://localhost:3000');
+let socket = socketio.connect({
+  transports: ['websocket'],
+  upgrade: false
+});
 
 socket.on('state', (data: any) => {
   app.queuedSpeakers = data.queuedSpeakers;

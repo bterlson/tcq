@@ -31,7 +31,7 @@ const template = `
     <queued-speaker v-for="speaker in queuedSpeakers" :key="speaker.id" v-bind="{ speaker: speaker }"></queued-speaker>
   </div>
   <div id="speaker-controls">
-    <new-topic-control></new-topic-control>
+    <new-topic-control @new-topic=newTopic @new-reply=newReply></new-topic-control>
     <div id=speaker-question @click=clarify>Clarifying Question</div>
     <div id=speaker-poo @click=poo>Point of Order</div>
   </div>
@@ -52,7 +52,11 @@ let app = new Vue({
   },
   methods: {
     clarify() {},
-    poo() {}
+    poo() {},
+    newTopic(description: string) {
+      alert(description);
+    },
+    newReply() {}
   }
 });
 

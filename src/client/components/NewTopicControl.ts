@@ -37,11 +37,13 @@ export const NewTopicControl = Vue.extend({
       let textField = this.$refs.field as HTMLInputElement;
       textField.focus();
     },
-    reply() {},
+    reply() {
+      this.$emit('new-reply');
+    },
     submitTopic() {
-      console.log(this.topicName);
+      this.$emit('new-topic', this.topicName);
+
       this.topicName = '';
-      console.log(this.topicName);
       let el = this.$refs.container as Element;
       el.classList.remove('active');
     }

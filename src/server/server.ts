@@ -60,17 +60,16 @@ io.on('connection', function(socket) {
   let user = (socket.handshake as any).session.passport.user;
   socket.emit('state', { currentSpeaker, queuedSpeakers });
   socket.on('newTopic', function(data: any) {
+    const speaker = { name: user.name, organization: user.company, topic: data.topic };
+    queuedSpeakers.push(speaker);
     socks.forEach(s => {
-      const speaker = { name: user.name, organization: user.company, topic: data.topic };
       s.emit('newSpeaker', {
         position: queuedSpeakers.length,
         speaker
       });
-      queuedSpeakers.push(speaker);
     });
   });
-  socket.on('end', function() {
-    console.log('deleting');
+  socket.on('disconnect', function() {
     socks.delete(socket);
   });
 });

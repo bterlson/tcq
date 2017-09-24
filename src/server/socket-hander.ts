@@ -52,15 +52,14 @@ export default function connection(socket: SocketIO.Socket) {
     return;
   }
   let user: User = (socket.handshake as any).session.passport.user;
+  let userProps = { name: user.name, organization: user.company, ghid: user.ghid };
 
   socket.emit('state', { currentSpeaker, queuedSpeakers });
   socket.on('newTopic', function(data: any) {
     const speaker: Speaker = {
-      name: user.name,
-      organization: user.company,
+      ...userProps,
       topic: data.topic,
-      type: 'topic',
-      ghid: user.ghid
+      type: 'topic'
     };
 
     enqueueSpeaker(speaker);
@@ -68,11 +67,9 @@ export default function connection(socket: SocketIO.Socket) {
 
   socket.on('poo', function() {
     const speaker: Speaker = {
-      name: user.name,
-      organization: user.company,
+      ...userProps,
       topic: '*pounds gavel* Order! Order! Order I say!',
-      type: 'poo',
-      ghid: user.ghid
+      type: 'poo'
     };
 
     enqueueSpeaker(speaker);
@@ -82,11 +79,9 @@ export default function connection(socket: SocketIO.Socket) {
     let currentTopic = currentSpeaker ? currentSpeaker.topic : '';
 
     const speaker: Speaker = {
-      name: user.name,
-      organization: user.company,
+      ...userProps,
       topic: currentTopic,
-      type: 'question',
-      ghid: user.ghid
+      type: 'question'
     };
 
     enqueueSpeaker(speaker);
@@ -96,11 +91,9 @@ export default function connection(socket: SocketIO.Socket) {
     let currentTopic = currentSpeaker ? currentSpeaker.topic : '';
 
     const speaker: Speaker = {
-      name: user.name,
-      organization: user.company,
+      ...userProps,
       topic: currentTopic,
-      type: 'reply',
-      ghid: user.ghid
+      type: 'reply'
     };
 
     enqueueSpeaker(speaker);

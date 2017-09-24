@@ -7,6 +7,7 @@ import { Server } from 'http';
 import * as Session from 'express-session';
 import Speaker from '../shared/speaker';
 import User from '../shared/user';
+import socketHandler from './socket-hander';
 
 const app = express();
 const server = new Server(app);
@@ -29,160 +30,11 @@ app.use(passport.session());
 app.use(routes);
 app.use(express.static('dist/client/'));
 
-const currentSpeaker: Speaker = {
-  name: 'Brian Terlson',
-  organization: 'Microsoft',
-  topic: 'The definition for the production FunctionDeclaration is incorrect',
-  type: 'topic',
-  ghid: 11236
-};
-
-const queuedSpeakers: Speaker[] = [
-  {
-    name: 'Brian Terlson',
-    organization: 'Microsoft',
-    topic: 'What is awesome?',
-    type: 'poo',
-    ghid: 11236
-  },
-  {
-    name: 'Ron Buckton',
-    organization: 'Microsoft',
-    topic: 'What are we talking about?',
-    type: 'question',
-    ghid: 3902892
-  },
-  {
-    name: 'Yehuda Katz',
-    organization: 'Tilde',
-    topic: 'Hello',
-    type: 'reply',
-    ghid: 4
-  },
-  {
-    name: 'David Herman',
-    organization: 'LinkedIn',
-    topic: 'This is a topic',
-    type: 'topic',
-    ghid: 307871
-  }
-];
-
 io.use(function(socket, next) {
   var req = socket.handshake;
   var res = {};
   session(req as any, res as any, next);
 });
-
-let socks = new Set();
-io.on('connection', function(socket) {
-  socks.add(socket);
-  if (!(socket.handshake as any).session || !(socket.handshake as any).session.passport) {
-    // not logged in I guess? Or session not found?
-    socket.disconnect();
-    return;
-  }
-  let user: User = (socket.handshake as any).session.passport.user;
-
-  socket.emit('state', { currentSpeaker, queuedSpeakers });
-  socket.on('newTopic', function(data: any) {
-    const speaker: Speaker = {
-      name: user.name,
-      organization: user.company,
-      topic: data.topic,
-      type: 'topic',
-      ghid: user.ghid
-    };
-
-    queuedSpeakers.push(speaker);
-    socks.forEach(s => {
-      s.emit('newSpeaker', {
-        position: queuedSpeakers.length - 1,
-        speaker
-      });
-    });
-  });
-
-  socket.on('poo', function() {
-    let index = queuedSpeakers.findIndex(function(v) {
-      return v.type !== 'poo';
-    });
-    if (index === -1) {
-      index = queuedSpeakers.length;
-    }
-
-    const speaker: Speaker = {
-      name: user.name,
-      organization: user.company,
-      topic: '*pounds gavel* Order! Order! Order I say!',
-      type: 'poo',
-      ghid: user.ghid
-    };
-
-    queuedSpeakers.splice(index, 0, speaker);
-    socks.forEach(s => {
-      s.emit('newSpeaker', {
-        position: index,
-        speaker: speaker
-      });
-    });
-  });
-
-  socket.on('question', function() {
-    let currentTopic = currentSpeaker.topic;
-    let index = queuedSpeakers.findIndex(function(v) {
-      return v.type === 'topic' || v.type === 'reply';
-    });
-    if (index === -1) {
-      index = queuedSpeakers.length;
-    }
-
-    const speaker: Speaker = {
-      name: user.name,
-      organization: user.company,
-      topic: currentTopic,
-      type: 'question',
-      ghid: user.ghid
-    };
-
-    queuedSpeakers.splice(index, 0, speaker);
-    socks.forEach(s => {
-      s.emit('newSpeaker', {
-        position: index,
-        speaker: speaker
-      });
-    });
-  });
-
-  socket.on('reply', function(data: any) {
-    let currentTopic = currentSpeaker.topic;
-    let index = queuedSpeakers.findIndex(function(v) {
-      return v.type === 'topic';
-    });
-    if (index === -1) {
-      index = queuedSpeakers.length;
-    }
-
-    const speaker: Speaker = {
-      name: user.name,
-      organization: user.company,
-      topic: currentTopic,
-      type: 'reply',
-      ghid: user.ghid
-    };
-
-    queuedSpeakers.splice(index, 0, speaker);
-    socks.forEach(s => {
-      s.emit('newSpeaker', {
-        position: index,
-        speaker: speaker
-      });
-    });
-  });
-
-  socket.on('disconnect', function() {
-    socks.delete(socket);
-  });
-});
+io.on('connection', socketHandler);
 
 export default app;

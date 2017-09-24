@@ -10,6 +10,7 @@ import {
 } from './promisifed-docdb';
 import { DATABASE_ID } from './db';
 import uuid = require('uuid');
+import { isChair } from './chairs';
 import { Meeting } from './database-types';
 import { ensureLoggedIn } from 'connect-ensure-login';
 import { resolve as resolvePath } from 'path';
@@ -44,7 +45,9 @@ router.get('/', async (req, res) => {
     }
     let path = resolvePath(__dirname, '../client/index.html');
     let contents = await rf(path, { encoding: 'utf8' });
-    let clientData = `<script>window.ghid = ${req.user.ghid}</script>`;
+    let clientData = `<script>window.ghid = "${req.user.ghid}"; window.isChair = ${isChair(
+      req.user.ghid
+    )}</script>`;
 
     // insert client data script prior to the first script so this data is available.
     let slicePos = contents.indexOf('<script');
@@ -72,7 +75,7 @@ router.get(
     return;
   }
 );
-
+/*
 router.get(
   '/makemeeting',
   wrap(async function(req, res) {
@@ -100,37 +103,13 @@ router.get(
       const database = await getDatabaseById(DATABASE_ID);
       const collection = await getCollectionById('items', database);
       const document = await getDocumentById(id, collection);
-      */
+      
     } else {
       res.status(400);
       res.end();
     }
   })
 );
-
-const currentSpeaker = {
-  id: uuid(),
-  firstName: 'Brian',
-  lastName: 'Terlson',
-  organization: 'Microsoft'
-};
-
-const queuedSpeakers = [
-  { firstName: 'Daniel', lastName: 'Rosenwasser', organization: 'Microsoft' },
-  { firstName: 'Yehuda', lastName: 'Katz', organization: 'Tilde' },
-  { firstName: 'David', lastName: 'Herman', organization: 'LinkedIn' },
-  { firstName: 'aaa', lastName: '', organization: '' },
-  { firstName: 'bbb', lastName: '', organization: '' },
-  { firstName: 'ccc', lastName: '', organization: '' },
-  { firstName: 'ddd', lastName: '', organization: '' },
-  { firstName: 'eee', lastName: '', organization: '' },
-  { firstName: 'fff', lastName: '', organization: '' }
-].map((speaker, id) => ({ ...speaker, id: uuid() }));
-
-const meeting: Meeting = {
-  id: uuid(),
-  currentSpeaker,
-  queuedSpeakers
-};
+*/
 
 export default router;

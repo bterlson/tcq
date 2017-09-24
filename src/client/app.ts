@@ -8,7 +8,7 @@ import Speaker from '../shared/speaker';
 const template = `
 <div id=app>
   <div id=info>
-    <current-speaker :speaker="currentSpeaker"></current-speaker>
+    <current-speaker :speaker=currentSpeaker @current-speaker-finished=nextSpeaker></current-speaker>
   </div>
   <div id="queue-container">
     <h2>Speaker Queue</h2>
@@ -32,8 +32,13 @@ socket.on('state', (data: any) => {
   app.currentSpeaker = data.currentSpeaker;
 });
 
-socket.on('newSpeaker', (data: any) => {
+socket.on('newSpeaker', (data: { position: number; speaker: Speaker }) => {
   app.queuedSpeakers.splice(data.position, 0, data.speaker);
+});
+
+socket.on('nextSpeaker', (data: Speaker) => {
+  app.currentSpeaker = data;
+  app.queuedSpeakers.shift();
 });
 
 let app = new Vue({
@@ -61,6 +66,9 @@ let app = new Vue({
     },
     newReply() {
       socket.emit('reply');
+    },
+    nextSpeaker() {
+      socket.emit('nextSpeaker');
     }
   }
 });

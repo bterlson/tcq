@@ -6,6 +6,8 @@ import * as socketio from 'socket.io';
 import { Server } from 'http';
 import * as Session from 'express-session';
 import Speaker from '../shared/speaker';
+import User from '../shared/user';
+
 const app = express();
 const server = new Server(app);
 const io = socketio(server);
@@ -31,7 +33,8 @@ const currentSpeaker: Speaker = {
   name: 'Brian Terlson',
   organization: 'Microsoft',
   topic: 'The definition for the production FunctionDeclaration is incorrect',
-  type: 'topic'
+  type: 'topic',
+  ghid: 11236
 };
 
 const queuedSpeakers: Speaker[] = [
@@ -39,16 +42,30 @@ const queuedSpeakers: Speaker[] = [
     name: 'Brian Terlson',
     organization: 'Microsoft',
     topic: 'What is awesome?',
-    type: 'poo'
+    type: 'poo',
+    ghid: 11236
   },
   {
     name: 'Ron Buckton',
     organization: 'Microsoft',
     topic: 'What are we talking about?',
-    type: 'question'
+    type: 'question',
+    ghid: 3902892
   },
-  { name: 'Yehuda Katz', organization: 'Tilde', topic: 'Hello', type: 'reply' },
-  { name: 'David Herman', organization: 'LinkedIn', topic: 'This is a topic', type: 'topic' }
+  {
+    name: 'Yehuda Katz',
+    organization: 'Tilde',
+    topic: 'Hello',
+    type: 'reply',
+    ghid: 4
+  },
+  {
+    name: 'David Herman',
+    organization: 'LinkedIn',
+    topic: 'This is a topic',
+    type: 'topic',
+    ghid: 307871
+  }
 ];
 
 io.use(function(socket, next) {
@@ -65,15 +82,18 @@ io.on('connection', function(socket) {
     socket.disconnect();
     return;
   }
-  let user = (socket.handshake as any).session.passport.user;
+  let user: User = (socket.handshake as any).session.passport.user;
+
   socket.emit('state', { currentSpeaker, queuedSpeakers });
   socket.on('newTopic', function(data: any) {
     const speaker: Speaker = {
       name: user.name,
       organization: user.company,
       topic: data.topic,
-      type: 'topic'
+      type: 'topic',
+      ghid: user.ghid
     };
+
     queuedSpeakers.push(speaker);
     socks.forEach(s => {
       s.emit('newSpeaker', {
@@ -95,7 +115,8 @@ io.on('connection', function(socket) {
       name: user.name,
       organization: user.company,
       topic: '*pounds gavel* Order! Order! Order I say!',
-      type: 'poo'
+      type: 'poo',
+      ghid: user.ghid
     };
 
     queuedSpeakers.splice(index, 0, speaker);
@@ -120,7 +141,8 @@ io.on('connection', function(socket) {
       name: user.name,
       organization: user.company,
       topic: currentTopic,
-      type: 'question'
+      type: 'question',
+      ghid: user.ghid
     };
 
     queuedSpeakers.splice(index, 0, speaker);
@@ -145,7 +167,8 @@ io.on('connection', function(socket) {
       name: user.name,
       organization: user.company,
       topic: currentTopic,
-      type: 'reply'
+      type: 'reply',
+      ghid: user.ghid
     };
 
     queuedSpeakers.splice(index, 0, speaker);

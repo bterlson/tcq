@@ -13,6 +13,9 @@ import uuid = require('uuid');
 import { Meeting } from './database-types';
 import { ensureLoggedIn } from 'connect-ensure-login';
 import { resolve as resolvePath } from 'path';
+import { promisify } from 'util';
+import { readFile } from 'fs';
+const rf = promisify(readFile);
 
 function wrap(fn: (req: express.Request, res: express.Response) => Promise<void>) {
   return function(req: express.Request, res: express.Response, next: any): void {
@@ -40,10 +43,17 @@ router.get('/', async (req, res) => {
       return;
     }
     let path = resolvePath(__dirname, '../client/index.html');
-    res.sendFile(path);
+    let contents = await rf(path, { encoding: 'utf8' });
+    let clientData = `<script>window.ghid = ${req.user.ghid}</script>`;
+
+    // insert client data script prior to the first script so this data is available.
+    let slicePos = contents.indexOf('<script');
+    contents = contents.slice(0, slicePos) + clientData + contents.slice(slicePos);
+    res.send(contents);
+    res.end();
   } else {
     res.status(200);
-    res.send('Sign in on GitHub: <a href="/auth/github">here</a>');
+    res.send('<a href="/auth/github">Sign in on GitHub</a>');
     res.end();
   }
 });

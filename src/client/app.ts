@@ -40,6 +40,7 @@ let app = new Vue({
   el: '#app',
   template,
   data: {
+    userGhid: ghid as string,
     currentSpeaker: null as Speaker | null,
     queuedSpeakers: [] as Speaker[]
   },

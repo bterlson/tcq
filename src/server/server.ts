@@ -77,8 +77,82 @@ io.on('connection', function(socket) {
     queuedSpeakers.push(speaker);
     socks.forEach(s => {
       s.emit('newSpeaker', {
-        position: queuedSpeakers.length,
+        position: queuedSpeakers.length - 1,
         speaker
+      });
+    });
+  });
+
+  socket.on('poo', function() {
+    let index = queuedSpeakers.findIndex(function(v) {
+      return v.type !== 'poo';
+    });
+    if (index === -1) {
+      index = queuedSpeakers.length;
+    }
+
+    const speaker: Speaker = {
+      name: user.name,
+      organization: user.company,
+      topic: '*pounds gavel* Order! Order! Order I say!',
+      type: 'poo'
+    };
+
+    queuedSpeakers.splice(index, 0, speaker);
+    socks.forEach(s => {
+      s.emit('newSpeaker', {
+        position: index,
+        speaker: speaker
+      });
+    });
+  });
+
+  socket.on('question', function() {
+    let currentTopic = currentSpeaker.topic;
+    let index = queuedSpeakers.findIndex(function(v) {
+      return v.type === 'topic' || v.type === 'reply';
+    });
+    if (index === -1) {
+      index = queuedSpeakers.length;
+    }
+
+    const speaker: Speaker = {
+      name: user.name,
+      organization: user.company,
+      topic: currentTopic,
+      type: 'question'
+    };
+
+    queuedSpeakers.splice(index, 0, speaker);
+    socks.forEach(s => {
+      s.emit('newSpeaker', {
+        position: index,
+        speaker: speaker
+      });
+    });
+  });
+
+  socket.on('reply', function(data: any) {
+    let currentTopic = currentSpeaker.topic;
+    let index = queuedSpeakers.findIndex(function(v) {
+      return v.type === 'topic';
+    });
+    if (index === -1) {
+      index = queuedSpeakers.length;
+    }
+
+    const speaker: Speaker = {
+      name: user.name,
+      organization: user.company,
+      topic: currentTopic,
+      type: 'reply'
+    };
+
+    queuedSpeakers.splice(index, 0, speaker);
+    socks.forEach(s => {
+      s.emit('newSpeaker', {
+        position: index,
+        speaker: speaker
       });
     });
   });

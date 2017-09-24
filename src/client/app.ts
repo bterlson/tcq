@@ -49,12 +49,18 @@ let app = new Vue({
     NewTopicControl
   },
   methods: {
-    clarify() {},
-    poo() {},
+    clarify() {
+      socket.emit('question');
+    },
+    poo() {
+      socket.emit('poo');
+    },
     newTopic(description: string) {
       socket.emit('newTopic', { topic: description });
     },
-    newReply() {}
+    newReply() {
+      socket.emit('reply');
+    }
   }
 });
 

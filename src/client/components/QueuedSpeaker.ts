@@ -2,8 +2,8 @@ import Vue from 'vue';
 import Speaker from '../../shared/speaker';
 
 const template = `
-<div class="queue-item">
-    <span>{{speaker.name}}</span>{{displayedOrg}}: {{speaker.topic}}
+<div class="queue-item" v-bind:class="'queue-type-' + speaker.type">
+    {{speaker.name}}</span>{{displayedOrg}}: {{speaker.topic}}
 </div>
 `;
 

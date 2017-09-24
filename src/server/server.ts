@@ -6,7 +6,6 @@ import * as socketio from 'socket.io';
 import { Server } from 'http';
 import * as Session from 'express-session';
 import Speaker from '../shared/speaker';
-console.log('starting!');
 const app = express();
 const server = new Server(app);
 const io = socketio(server);
@@ -31,17 +30,25 @@ app.use(express.static('dist/client/'));
 const currentSpeaker: Speaker = {
   name: 'Brian Terlson',
   organization: 'Microsoft',
-  topic: 'The definition for the production FunctionDeclaration is incorrect'
+  topic: 'The definition for the production FunctionDeclaration is incorrect',
+  type: 'topic'
 };
 
 const queuedSpeakers: Speaker[] = [
   {
     name: 'Brian Terlson',
     organization: 'Microsoft',
-    topic: 'What is awesome?'
+    topic: 'What is awesome?',
+    type: 'poo'
   },
-  { name: 'Yehuda Katz', organization: 'Tilde', topic: 'Hello' },
-  { name: 'David Herman', organization: 'LinkedIn', topic: 'This is a topic' }
+  {
+    name: 'Ron Buckton',
+    organization: 'Microsoft',
+    topic: 'What are we talking about?',
+    type: 'question'
+  },
+  { name: 'Yehuda Katz', organization: 'Tilde', topic: 'Hello', type: 'reply' },
+  { name: 'David Herman', organization: 'LinkedIn', topic: 'This is a topic', type: 'topic' }
 ];
 
 io.use(function(socket, next) {
@@ -61,7 +68,12 @@ io.on('connection', function(socket) {
   let user = (socket.handshake as any).session.passport.user;
   socket.emit('state', { currentSpeaker, queuedSpeakers });
   socket.on('newTopic', function(data: any) {
-    const speaker: Speaker = { name: user.name, organization: user.company, topic: data.topic };
+    const speaker: Speaker = {
+      name: user.name,
+      organization: user.company,
+      topic: data.topic,
+      type: 'topic'
+    };
     queuedSpeakers.push(speaker);
     socks.forEach(s => {
       s.emit('newSpeaker', {

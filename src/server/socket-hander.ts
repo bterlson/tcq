@@ -155,6 +155,4 @@ function enqueueSpeaker(speaker: Speaker) {
       speaker: speaker
     });
   }
-
-  console.log('after enqueue', queuedSpeakers, currentSpeaker);
 }

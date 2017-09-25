@@ -125,7 +125,7 @@ export default async function connection(socket: SocketIO.Socket) {
     const meeting = await getMeetingAsync(DOCUMENT_ID, collection);
     if (!meeting.currentSpeaker) return;
 
-    if (meeting.currentSpeaker.ghid !== user.ghid || !isChair(user.ghid)) {
+    if (meeting.currentSpeaker.ghid !== user.ghid && !isChair(user.ghid)) {
       // unauthorized
       return;
     }

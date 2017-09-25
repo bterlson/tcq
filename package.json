@@ -2,12 +2,15 @@
   "name": "tcq",
   "version": "1.0.0",
   "description": "A TC39 Discussion Queue",
-  "main": "index.js",
+  "main": "dist/server/server.js",
   "scripts": {
     "build-frontend": "webpack --config ./src/client/webpack.config.js",
+    "build-frontend-prod": "webpack -p --config ./src/client/webpack.config.js",
     "build-frontend-watch": "webpack --watch --config ./src/client/webpack.config.js",
     "build-backend": "tsc -p ./src/server",
-    "iterate": "npm run build-backend && concurrently \"npm run build-frontend-watch\" \"node ./dist/server/server.js\""
+    "iterate":
+      "npm run build-backend && concurrently \"npm run build-frontend-watch\" \"node ./dist/server/server.js\"",
+    "postinstall": "npm run build-backend && npm run build-frontend-prod"
   },
   "author": "Brian Terlson",
   "contributors": [
@@ -18,7 +21,7 @@
   ],
   "license": "Apache-2.0",
   "engines": {
-    "node": "8.0.0"
+    "node": "8.0"
   },
   "dependencies": {
     "body-parser": "^1.18.1",
@@ -34,9 +37,7 @@
     "socket.io": "^2.0.3",
     "socket.io-client": "^2.0.3",
     "uuid": "^3.1.0",
-    "vue": "github:herringtondarkholme/vue#new-type"
-  },
-  "devDependencies": {
+    "vue": "github:herringtondarkholme/vue#new-type",
     "@types/connect-ensure-login": "^0.1.3",
     "@types/documentdb": "^1.10.2",
     "@types/documentdb-session": "^1.0.0",

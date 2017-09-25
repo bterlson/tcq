@@ -86,7 +86,7 @@ export default async function connection(socket: SocketIO.Socket) {
       topic: data.topic,
       type: 'topic'
     };
-    enqueueSpeaker(speaker);
+    await enqueueSpeaker(speaker);
   }
 
   async function poo() {
@@ -132,12 +132,10 @@ export default async function connection(socket: SocketIO.Socket) {
 
     if (meeting.queuedSpeakers.length === 0) {
       meeting.currentSpeaker = null;
-      emitAll('nextSpeaker', null);
-      return;
     } else {
       meeting.currentSpeaker = meeting.queuedSpeakers.shift()!;
-      await collection.storeDocumentAsync(meeting, docdb.StoreMode.UpdateOnly);
     }
+    await collection.storeDocumentAsync(meeting, docdb.StoreMode.UpdateOnly);
     emitAll('nextSpeaker', meeting.currentSpeaker);
   }
 

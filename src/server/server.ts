@@ -12,7 +12,7 @@ import * as dbConstants from './db';
 
 const app = express();
 const server = new Server(app);
-const io = socketio(server);
+const io = socketio(server, { perMessageDeflate: false });
 const port = process.env.PORT || 3000;
 server.listen(port);
 

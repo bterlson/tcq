@@ -7,13 +7,22 @@ import { Server } from 'http';
 import * as Session from 'express-session';
 import Speaker from '../shared/Speaker';
 import socketHandler from './socket-hander';
+import DocumentDBSession = require('documentdb-session');
+import * as dbConstants from './db';
 
 const app = express();
 const server = new Server(app);
 const io = socketio(server);
 server.listen(3000);
 
-const sessionStore = new Session.MemoryStore();
+const DocumentDBStore = DocumentDBSession(Session);
+
+const sessionStore = new DocumentDBStore({
+  host: dbConstants.HOST,
+  database: dbConstants.DATABASE_ID,
+  collection: dbConstants.SESSION_COLLECTION_ID,
+  key: secrets.CDB_SECRET
+});
 
 const session = Session({
   secret: secrets.SESSION_SECRET,

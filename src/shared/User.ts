@@ -1,7 +1,5 @@
 export default interface User {
   name: string;
-  company: string;
+  organization: string;
   ghid: string;
-  accessToken: string;
-  refreshToken: string;
 };

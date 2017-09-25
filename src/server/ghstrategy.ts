@@ -1,6 +1,6 @@
 import { Strategy as GitHubStrategy } from 'passport-github';
 import { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } from './secrets';
-import User from '../shared/user';
+import GHAuthUser from '../shared/GitHubAuthenticatedUser';
 
 export default new GitHubStrategy(
   {
@@ -10,7 +10,7 @@ export default new GitHubStrategy(
     scope: ['user:email', 'read:org']
   },
   function(accessToken, refreshToken, profile, cb) {
-    let user: User = {
+    let user: GHAuthUser = {
       name: profile.displayName,
       company: (<any>profile)._json.company,
       accessToken,

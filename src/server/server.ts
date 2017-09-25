@@ -5,8 +5,7 @@ import routes from './router';
 import * as socketio from 'socket.io';
 import { Server } from 'http';
 import * as Session from 'express-session';
-import Speaker from '../shared/speaker';
-import User from '../shared/user';
+import Speaker from '../shared/Speaker';
 import socketHandler from './socket-hander';
 
 const app = express();

@@ -1,8 +1,17 @@
-import Speaker from '../shared/speaker';
-import User from '../shared/user';
+import Meeting from '../shared/Meeting';
+import Speaker from '../shared/Speaker';
+import User from '../shared/User';
+import GitHubAuthenticatedUser from '../shared/GitHubAuthenticatedUser';
 import * as socketio from 'socket.io';
 import { isChair } from './chairs';
+import * as docdb from 'documentdb-typescript';
+import { DATABASE_ID, COLLECTION_ID, HOST } from './db';
+import { CDB_SECRET } from './secrets';
+import { DocumentResource } from 'documentdb-typescript/typings/_DocumentDB';
 
+const DOCUMENT_ID = '9db4a2cb-2574-4480-ac15-4eba403f4bff';
+
+/*
 let currentSpeaker: Speaker | null = {
   name: 'Brian Terlson',
   organization: 'Microsoft',
@@ -31,7 +40,7 @@ const queuedSpeakers: Speaker[] = [
     organization: 'Tilde',
     topic: 'Hello',
     type: 'reply',
-    ghid: '4' /* really... */
+    ghid: '4' // really...
   },
   {
     name: 'David Herman',
@@ -41,85 +50,100 @@ const queuedSpeakers: Speaker[] = [
     ghid: '307871'
   }
 ];
-
+*/
 let socks = new Set<SocketIO.Socket>();
 
-export default function connection(socket: SocketIO.Socket) {
-  socks.add(socket);
+export default async function connection(socket: SocketIO.Socket) {
+  const meetingPromise = getMeetingAsync(DOCUMENT_ID);
   if (!(socket.handshake as any).session || !(socket.handshake as any).session.passport) {
     // not logged in I guess? Or session not found?
     socket.disconnect();
     return;
   }
-  let user: User = (socket.handshake as any).session.passport.user;
-  let userProps = { name: user.name, organization: user.company, ghid: user.ghid };
+  socks.add(socket);
+  let githubUser: GitHubAuthenticatedUser = (socket.handshake as any).session.passport.user;
+  let user: User = {
+    name: githubUser.name,
+    organization: githubUser.company,
+    ghid: githubUser.ghid
+  };
 
-  socket.emit('state', { currentSpeaker, queuedSpeakers });
-  socket.on('newTopic', function(data: any) {
+  const meeting = await meetingPromise;
+  socket.emit('state', {
+    currentSpeaker: meeting.currentSpeaker,
+    queuedSpeakers: meeting.queuedSpeakers
+  });
+  socket.on('newTopic', newTopic);
+  socket.on('poo', poo);
+  socket.on('question', question);
+  socket.on('reply', reply);
+  socket.on('nextSpeaker', nextSpeaker);
+  socket.on('disconnect', disconnect);
+
+  async function newTopic(data: { topic: string }) {
     const speaker: Speaker = {
-      ...userProps,
+      ...user,
       topic: data.topic,
       type: 'topic'
     };
-
     enqueueSpeaker(speaker);
-  });
+  }
 
-  socket.on('poo', function() {
+  async function poo() {
     const speaker: Speaker = {
-      ...userProps,
+      ...user,
       topic: '*pounds gavel* Order! Order! Order I say!',
       type: 'poo'
     };
+    await enqueueSpeaker(speaker);
+  }
 
-    enqueueSpeaker(speaker);
-  });
-
-  socket.on('question', function() {
-    let currentTopic = currentSpeaker ? currentSpeaker.topic : '';
-
+  async function question() {
+    const meeting = await getMeetingAsync(DOCUMENT_ID);
+    const currentTopic = meeting.currentSpeaker ? meeting.currentSpeaker.topic : '';
     const speaker: Speaker = {
-      ...userProps,
+      ...user,
       topic: currentTopic,
       type: 'question'
     };
+    await enqueueSpeaker(speaker);
+  }
 
-    enqueueSpeaker(speaker);
-  });
-
-  socket.on('reply', function(data: any) {
-    let currentTopic = currentSpeaker ? currentSpeaker.topic : '';
-
+  async function reply(data: any) {
+    const meeting = await getMeetingAsync(DOCUMENT_ID);
+    let currentTopic = meeting.currentSpeaker ? meeting.currentSpeaker.topic : '';
     const speaker: Speaker = {
-      ...userProps,
+      ...user,
       topic: currentTopic,
       type: 'reply'
     };
+    await enqueueSpeaker(speaker);
+  }
 
-    enqueueSpeaker(speaker);
-  });
+  async function nextSpeaker() {
+    const collection = await getCollectionAsync();
+    const meeting = await getMeetingAsync(DOCUMENT_ID, collection);
+    if (!meeting.currentSpeaker) return;
 
-  socket.on('nextSpeaker', function() {
-    if (!currentSpeaker) return;
-
-    if (!(currentSpeaker.ghid === user.ghid || isChair(user.ghid))) {
+    if (meeting.currentSpeaker.ghid !== user.ghid || !isChair(user.ghid)) {
       // unauthorized
       return;
     }
 
-    if (queuedSpeakers.length === 0) {
-      currentSpeaker = null;
+    if (meeting.queuedSpeakers.length === 0) {
+      meeting.currentSpeaker = null;
       emitAll('nextSpeaker', null);
       return;
+    } else {
+      meeting.currentSpeaker = meeting.queuedSpeakers.shift()!;
+      await collection.storeDocumentAsync(meeting, docdb.StoreMode.UpdateOnly);
     }
+    emitAll('nextSpeaker', meeting.currentSpeaker);
+  }
 
-    currentSpeaker = queuedSpeakers.shift()!;
-    emitAll('nextSpeaker', currentSpeaker);
-  });
-
-  socket.on('disconnect', function() {
+  function disconnect() {
     socks.delete(socket);
-  });
+  }
 }
 
 function emitAll(name: string | symbol, ...args: any[]) {
@@ -127,20 +151,29 @@ function emitAll(name: string | symbol, ...args: any[]) {
     s.emit(name, ...args);
   });
 }
-let priorities: typeof currentSpeaker.type[] = ['poo', 'question', 'reply', 'topic'];
 
-function enqueueSpeaker(speaker: Speaker) {
-  let index = queuedSpeakers.findIndex(function(v) {
-    return priorities.indexOf(v.type) > priorities.indexOf(speaker.type);
+let priorities: Speaker['type'][] = ['poo', 'question', 'reply', 'topic'];
+
+async function enqueueSpeaker(speaker: Speaker, meeting?: Meeting & DocumentResource) {
+  const collection = await getCollectionAsync();
+  meeting = meeting || (await getMeetingAsync(DOCUMENT_ID, collection));
+  if (!meeting) {
+    console.log('Meeting not found!');
+    return;
+  }
+
+  const { queuedSpeakers } = meeting;
+  let index = queuedSpeakers.findIndex(function(queuedSpeaker) {
+    return priorities.indexOf(queuedSpeaker.type) > priorities.indexOf(speaker.type);
   });
 
   if (index === -1) {
     index = queuedSpeakers.length;
   }
 
-  if (!currentSpeaker && queuedSpeakers.length === 0) {
+  if (!meeting.currentSpeaker && queuedSpeakers.length === 0) {
     emitAll('nextSpeaker', speaker);
-    currentSpeaker = speaker;
+    meeting.currentSpeaker = speaker;
   } else {
     queuedSpeakers.splice(index, 0, speaker);
     emitAll('newSpeaker', {
@@ -148,4 +181,25 @@ function enqueueSpeaker(speaker: Speaker) {
       speaker: speaker
     });
   }
+  await collection.storeDocumentAsync(meeting, docdb.StoreMode.UpdateOnly);
+}
+
+async function getMeetingAsync(meetingId: string, collection?: docdb.Collection) {
+  if (!collection) collection = await getCollectionAsync();
+  let meeting: Meeting & DocumentResource;
+  try {
+    meeting = (await collection.findDocumentAsync(meetingId)) as Meeting & DocumentResource;
+  } catch {
+    // Note, not sure if this can still throw?
+    meeting = await collection.storeDocumentAsync({
+      currentSpeaker: null,
+      queuedSpeakers: [],
+      id: DOCUMENT_ID
+    });
+  }
+  return meeting;
+}
+
+async function getCollectionAsync() {
+  return new docdb.Collection(COLLECTION_ID, DATABASE_ID, HOST, CDB_SECRET).openAsync();
 }

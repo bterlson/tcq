@@ -4,10 +4,11 @@
   "description": "A TC39 Discussion Queue",
   "main": "dist/server/server.js",
   "scripts": {
-    "build-frontend": "webpack --config ./src/client/webpack.config.js",
-    "build-frontend-prod": "webpack -p --config ./src/client/webpack.config.js",
-    "build-frontend-watch": "webpack --watch --config ./src/client/webpack.config.js",
-    "build-backend": "tsc -p ./src/server",
+    "build-frontend": "./node_modules/.bin/webpack --config ./src/client/webpack.config.js",
+    "build-frontend-prod": "./node_modules/.bin/webpack -p --config ./src/client/webpack.config.js",
+    "build-frontend-watch":
+      "./node_modules/.bin/webpack --watch --config ./src/client/webpack.config.js",
+    "build-backend": "./node_modules/.bin/tsc -p ./src/server",
     "iterate":
       "npm run build-backend && concurrently \"npm run build-frontend-watch\" \"node ./dist/server/server.js\"",
     "postinstall": "npm run build-backend && npm run build-frontend-prod"

@@ -7,7 +7,11 @@
     "build-frontend": "webpack --config ./src/client/webpack.config.js",
     "build-frontend-watch": "webpack --watch --config ./src/client/webpack.config.js",
     "build-backend": "tsc -p ./src/server",
-    "iterate": "npm run build-backend && concurrently \"npm run build-frontend-watch\" \"node ./dist/server/server.js\""
+    "build-production":
+      "npm run build-backend && webpack -p --config ./src/client/webpack.config.js",
+    "iterate":
+      "npm run build-backend && concurrently \"npm run build-frontend-watch\" \"node ./dist/server/server.js\"",
+    "start": "node dist/server/server.js"
   },
   "author": "Brian Terlson",
   "contributors": [

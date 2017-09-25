@@ -32,17 +32,6 @@ function wrap(fn: (req: express.Request, res: express.Response) => Promise<void>
 const router = Router();
 router.get('/', async (req, res) => {
   if (req.isAuthenticated()) {
-    let membership;
-
-    try {
-      membership = await gha(req.user.accessToken).users.getOrgMembership({ org: 'tc39' });
-    } catch (e) {
-      console.error(e);
-      res.status(404);
-      res.send('Not a member!');
-      res.end();
-      return;
-    }
     let path = resolvePath(__dirname, '../client/index.html');
     let contents = await rf(path, { encoding: 'utf8' });
     let clientData = `<script>window.ghid = "${req.user.ghid}"; window.isChair = ${isChair(

@@ -17,6 +17,9 @@
     }
   ],
   "license": "Apache-2.0",
+  "engines": {
+    "node": "8.0.0"
+  },
   "dependencies": {
     "body-parser": "^1.18.1",
     "connect-ensure-login": "^0.1.1",

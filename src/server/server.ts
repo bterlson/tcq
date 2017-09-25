@@ -13,7 +13,8 @@ import * as dbConstants from './db';
 const app = express();
 const server = new Server(app);
 const io = socketio(server);
-server.listen(3000);
+const port = process.env.PORT || 3000;
+server.listen(port);
 
 const DocumentDBStore = DocumentDBSession(Session);
 

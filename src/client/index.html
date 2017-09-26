@@ -138,76 +138,74 @@
     letter-spacing: 1px;
     justify-content: space-around;
     background-color: #333;
-    padding: 5px 0;
+    padding: 0;
     flex-shrink: 0;
+    position: relative;
   }
 
-  #speaker-controls>div {
+  #speaker-controls>div.button {
     font-size: 20px;
     line-height: 50px;
     white-space: nowrap;
     color: #eee;
-  }
-  /* New Topic Control */
-
-  #new-topic-control {
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 5px;
-    flex-grow: 1;
+    margin: 1%;
+    box-sizing: border-box;
+    margin: 5px 0;
+    width: 48%;
   }
 
-  #new-topic-form {
-    width: 100%;
-    display: none;
-    padding: 0 5px;
-    height: 52px;
-  }
-
-  #new-topic-control.active #new-topic-form {
-    display: flex;
-  }
 
   #new-topic {
-    width: 48%;
     background-color: #565;
     border: 1px solid #797;
-  }
-
-  #new-topic-control.active #new-topic {
-    display: none;
   }
 
   #reply {
-    width: 48%;
     background-color: #565;
     border: 1px solid #797;
   }
 
-  #new-topic-control.active #reply {
-    display: none;
-  }
-
-  #new-topic-form input {
-    flex-grow: 4;
-    padding: 5px 10px;
-  }
-
-  #new-topic-form button {
-    flex-grow: 1
-  }
 
   #speaker-question {
-    width: 48%;
     background-color: #773;
     border: 1px solid #996;
   }
 
   #speaker-poo {
-    width: 48%;
     background-color: #633;
     border: 1px solid #966;
+  }
+  /* New Topic Control */
+
+  #new-topic-control {
+    position: absolute;
+    top: 0px;
+    left: 0;
+    right: 0;
+    bottom: 0px;
+    background-color: #ccc;
+    width: 100%;
+  }
+
+  #new-topic-form {
+    display: flex;
+    flex-wrap: nowrap;
+    padding: 5px;
+  }
+
+  #new-topic-control h2 {
+    margin-bottom: 10px;
+  }
+
+  #new-topic-form input {
+    margin: 5px 0;
+    width: 75%;
+  }
+
+  #new-topic-form button {
+    flex-grow: 0;
+    height: 25px;
+    margin: 0 5px;
   }
 </style>
 

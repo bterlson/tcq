@@ -8,6 +8,7 @@ import * as docdb from 'documentdb-typescript';
 import { DATABASE_ID, COLLECTION_ID, HOST } from './db';
 import { CDB_SECRET } from './secrets';
 import { DocumentResource } from 'documentdb-typescript/typings/_DocumentDB';
+import { TopicTypes } from '../shared/Speaker';
 
 const DOCUMENT_ID = '9db4a2cb-2574-4480-ac15-4eba403f4bff';
 
@@ -74,48 +75,14 @@ export default async function connection(socket: SocketIO.Socket) {
     queuedSpeakers: meeting.queuedSpeakers
   });
   socket.on('newTopic', newTopic);
-  socket.on('poo', poo);
-  socket.on('question', question);
-  socket.on('reply', reply);
   socket.on('nextSpeaker', nextSpeaker);
   socket.on('disconnect', disconnect);
 
-  async function newTopic(data: { topic: string }) {
+  async function newTopic(data: { topic: string; type: TopicTypes }) {
     const speaker: Speaker = {
       ...user,
       topic: data.topic,
-      type: 'topic'
-    };
-    await enqueueSpeaker(speaker);
-  }
-
-  async function poo() {
-    const speaker: Speaker = {
-      ...user,
-      topic: '*pounds gavel* Order! Order! Order I say!',
-      type: 'poo'
-    };
-    await enqueueSpeaker(speaker);
-  }
-
-  async function question() {
-    const meeting = await getMeetingAsync(DOCUMENT_ID);
-    const currentTopic = meeting.currentSpeaker ? meeting.currentSpeaker.topic : '';
-    const speaker: Speaker = {
-      ...user,
-      topic: currentTopic,
-      type: 'question'
-    };
-    await enqueueSpeaker(speaker);
-  }
-
-  async function reply(data: any) {
-    const meeting = await getMeetingAsync(DOCUMENT_ID);
-    let currentTopic = meeting.currentSpeaker ? meeting.currentSpeaker.topic : '';
-    const speaker: Speaker = {
-      ...user,
-      topic: currentTopic,
-      type: 'reply'
+      type: data.type
     };
     await enqueueSpeaker(speaker);
   }

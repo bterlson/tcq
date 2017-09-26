@@ -1,9 +1,10 @@
 import Vue from 'vue';
 import { QueuedSpeaker } from './components/QueuedSpeaker';
 import { CurrentSpeaker } from './components/CurrentSpeaker';
-import { NewTopicControl } from './components/NewTopicControl';
+import { SpeakerControls } from './components/SpeakerControls';
+
 import * as socketio from 'socket.io-client';
-import Speaker from '../shared/speaker';
+import Speaker from '../shared/Speaker';
 
 const template = `
 <div id=app>
@@ -14,11 +15,11 @@ const template = `
     <h2>Speaker Queue</h2>
     <queued-speaker v-for="speaker in queuedSpeakers" :key="speaker.id" v-bind="{ speaker: speaker }"></queued-speaker>
   </div>
-  <div id="speaker-controls">
-    <new-topic-control @new-topic=newTopic @new-reply=newReply></new-topic-control>
-    <div id=speaker-question @click=clarify>Clarifying Question</div>
-    <div id=speaker-poo @click=poo>Point of Order</div>
-  </div>
+  <speaker-controls
+    @new-topic=newTopic
+    :currentTopic="this.currentSpeaker ? this.currentSpeaker.topic : ''"
+    >
+  </speaker-controls>
 </div>
 `;
 
@@ -52,21 +53,13 @@ let app = new Vue({
   components: {
     QueuedSpeaker,
     CurrentSpeaker,
-    NewTopicControl
+    SpeakerControls
   },
   methods: {
-    clarify() {
-      socket.emit('question');
+    newTopic(description: { type: string; topic: string }) {
+      socket.emit('newTopic', description);
     },
-    poo() {
-      socket.emit('poo');
-    },
-    newTopic(description: string) {
-      socket.emit('newTopic', { topic: description });
-    },
-    newReply() {
-      socket.emit('reply');
-    },
+
     nextSpeaker() {
       socket.emit('nextSpeaker');
     }

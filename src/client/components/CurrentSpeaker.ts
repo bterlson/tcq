@@ -1,9 +1,9 @@
 import Vue from 'vue';
-import Speaker from '../../shared/speaker';
+import Speaker from '../../shared/Speaker';
 
 const template = `
     <div v-if="speaker" id="current-speaker">
-        <h2>Current Speaker</h2>
+        <h2>Current Speaker &amp; Topic</h2>
         <div class=current-topic>{{speaker.topic}}</div>
         <div>{{speaker.name}}{{displayedOrg}}</div>
         <div v-if="isMe" id="current-speaker-controls">

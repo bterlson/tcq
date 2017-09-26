@@ -3,6 +3,7 @@
   "compilerOptions": {
     "outDir": "../../dist",
     "lib": ["es2017"],
-    "target": "es5"
+    "target": "es5",
+    "module": "commonjs"
   }
 }

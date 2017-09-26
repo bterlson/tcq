@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "../../dist/client",
     "lib": ["es6", "dom"],
-    "inlineSourceMap": true,
-    "target": "es6"
+    "sourceMap": true,
+    "target": "es5",
+    "module": "esnext"
   }
 }

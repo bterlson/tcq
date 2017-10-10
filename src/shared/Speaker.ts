@@ -5,4 +5,5 @@ export default interface Speaker {
   type: TopicTypes;
   ghid: string | null;
 };
+
 export type TopicTypes = 'topic' | 'reply' | 'question' | 'poo';

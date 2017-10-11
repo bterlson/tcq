@@ -1,0 +1,14 @@
+<div id=new-topic-control>
+    <h2>{{topicName}}</h2>
+    <div id=new-topic-form>
+      <input
+        ref=field
+        type=text
+        v-model=topicDescription
+        @keyup.enter=submitTopic
+        @keyup.esc=hide
+        placeholder="Short topic description" />
+      <button @click=submitTopic class="button-submit">Submit</button>
+      <button @click=hide class="button-cancel">Cancel</button>
+    </div>
+  </div>

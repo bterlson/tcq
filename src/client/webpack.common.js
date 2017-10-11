@@ -1,9 +1,19 @@
 var path = require('path');
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
+function resolve (dir) {
+  return path.join(__dirname, '..', dir)
+}
 
+
+
+function resolve (dir) {
+
+  return path.join(__dirname, '..', dir)
+
+}
 module.exports = {
-  entry: './src/client/app.ts',
+  entry: './src/client/components/app.ts',
   output: {
     path: path.resolve(__dirname, '../../dist/client/'),
     filename: 'build.js'
@@ -14,6 +24,14 @@ module.exports = {
         test: /\.tsx?$/,
         loader: 'ts-loader',
         exclude: /node_modules/
+      },
+      {
+        test: /\.html$/,
+        loader: 'vue-template-loader',
+        exclude: resolve('client/index.html'),
+        options: {
+            scoped: true
+        }
       }
     ]
   },
@@ -34,7 +52,8 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       filename: 'index.html',
-      template: './src/client/index.html'
+      template: './src/client/index.html',
+      inject: true
     })
   ]
 };

@@ -6,5 +6,6 @@
   "editor.formatOnSave": true,
   "prettier.printWidth": 100,
   "prettier.singleQuote": true,
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "html.format.enable": false
 }

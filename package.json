@@ -8,8 +8,7 @@
     "build-frontend-watch": "webpack --watch --config ./src/client/webpack.dev.js",
     "build-backend": "tsc -p ./src/server",
     "build-production": "npm run build-backend && webpack -p --config ./src/client/webpack.prod.js",
-    "iterate":
-      "npm run build-backend && concurrently \"npm run build-frontend-watch\" \"node ./dist/server/server.js\"",
+    "iterate": "npm run build-backend && concurrently \"npm run build-frontend-watch\" \"node ./dist/server/server.js\"",
     "start": "node dist/server/server.js"
   },
   "author": "Brian Terlson",
@@ -55,6 +54,8 @@
     "html-webpack-plugin": "^2.30.1",
     "ts-loader": "^2.3.7",
     "typescript": "^2.6.0-dev.20170920",
+    "vue-template-compiler": "^2.4.4",
+    "vue-template-loader": "^0.3.1",
     "webpack": "^3.6.0",
     "webpack-merge": "^4.1.0"
   }

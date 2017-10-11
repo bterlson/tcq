@@ -5,6 +5,7 @@
     "lib": ["es6", "dom"],
     "sourceMap": true,
     "target": "es5",
-    "module": "esnext"
+    "module": "esnext",
+    "allowSyntheticDefaultImports": true
   }
 }

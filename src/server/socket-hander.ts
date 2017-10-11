@@ -80,7 +80,23 @@ export default async function connection(socket: SocketIO.Socket) {
     await updateMeeting(meeting);
   }
 
-  async function nextSpeaker() {}
+  async function nextSpeaker() {
+    const meeting = await getMeeting(DOCUMENT_ID);
+    if (!meeting.currentSpeaker) return;
+
+    if (meeting.currentSpeaker.ghid !== user.ghid && !isChair(user.ghid)) {
+      // unauthorized
+      return;
+    }
+
+    if (meeting.queuedSpeakers.length === 0) {
+      meeting.currentSpeaker = null;
+    } else {
+      meeting.currentSpeaker = meeting.queuedSpeakers.shift()!;
+    }
+    await updateMeeting(meeting);
+    emitAll('nextSpeaker', meeting.currentSpeaker);
+  }
 
   function disconnect() {
     socks.delete(socket);

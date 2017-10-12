@@ -5,6 +5,7 @@ import { SpeakerControls } from './SpeakerControls';
 import * as socketio from 'socket.io-client';
 import Speaker from '../../shared/Speaker';
 import appTemplate from './app.html';
+import * as Message from '../../shared/Messages';
 
 let AppComponent = Vue.extend({
   data: function() {
@@ -12,7 +13,7 @@ let AppComponent = Vue.extend({
       userGhid: ghid as string,
       currentSpeaker: null as Speaker | null,
       queuedSpeakers: [] as Speaker[],
-      socket: socketio.Socket
+      socket: null as Message.ClientSocket | null
     };
   },
   components: {
@@ -21,11 +22,13 @@ let AppComponent = Vue.extend({
     SpeakerControls
   },
   methods: {
-    newTopic(description: { type: string; topic: string }) {
-      this.socket.emit('newTopic', description);
+    newTopic(message: Message.NewTopic) {
+      if (!this.socket) return;
+      this.socket.emit(Message.Type.newTopic, message); // make this {} and you'll get an error on the wrong param?
     },
 
     nextSpeaker() {
+      if (!this.socket) return;
       this.socket.emit('nextSpeaker');
     }
   },
@@ -35,16 +38,16 @@ let AppComponent = Vue.extend({
       upgrade: false
     });
 
-    this.socket.on('state', (data: any) => {
+    this.socket.on(Message.Type.state, data => {
       this.queuedSpeakers = data.queuedSpeakers;
       this.currentSpeaker = data.currentSpeaker;
     });
 
-    this.socket.on('newSpeaker', (data: { position: number; speaker: Speaker }) => {
+    this.socket.on(Message.Type.newQueuedSpeaker, data => {
       this.queuedSpeakers.splice(data.position, 0, data.speaker);
     });
 
-    this.socket.on('nextSpeaker', (data: Speaker) => {
+    this.socket.on(Message.Type.newCurrentSpeaker, data => {
       this.currentSpeaker = data;
       this.queuedSpeakers.shift();
     });

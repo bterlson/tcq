@@ -4,16 +4,16 @@ import User from '../shared/User';
 import GitHubAuthenticatedUser from '../shared/GitHubAuthenticatedUser';
 import * as socketio from 'socket.io';
 import { isChair } from './chairs';
-
+import * as Message from '../shared/Messages';
 import { updateMeeting, getMeeting, getMeetingsCollection } from './db';
 import { TopicTypes } from '../shared/Speaker';
 
 const DOCUMENT_ID = '9db4a2cb-2574-4480-ac15-4eba403f4bff';
 const PRIORITIES: Speaker['type'][] = ['poo', 'question', 'reply', 'topic'];
 
-let socks = new Set<SocketIO.Socket>();
+let socks = new Set<Message.ServerSocket>();
 
-export default async function connection(socket: SocketIO.Socket) {
+export default async function connection(socket: Message.ServerSocket) {
   if (!(socket.handshake as any).session || !(socket.handshake as any).session.passport) {
     // not logged in I guess? Or session not found?
     socket.disconnect();
@@ -29,18 +29,19 @@ export default async function connection(socket: SocketIO.Socket) {
 
   const meeting = await getMeeting(DOCUMENT_ID);
 
-  socket.emit('state', {
+  socket.emit(Message.Type.state, {
     currentSpeaker: meeting.currentSpeaker,
-    queuedSpeakers: meeting.queuedSpeakers
+    queuedSpeakers: meeting.queuedSpeakers,
+    agenda: []
   });
-  socket.on('newTopic', newTopic);
-  socket.on('nextSpeaker', nextSpeaker);
-  socket.on('disconnect', disconnect);
+  socket.on(Message.Type.newTopic, newTopic);
+  socket.on(Message.Type.nextSpeaker, nextSpeaker);
+  socket.on(Message.Type.disconnect, disconnect);
 
-  async function newTopic(data: { topic: string; type: TopicTypes; uuid: string }) {
+  async function newTopic(message: Message.NewTopic) {
     const speaker: Speaker = {
       ...user,
-      ...data
+      ...message
     };
 
     await enqueueSpeaker(speaker, DOCUMENT_ID);
@@ -67,11 +68,11 @@ export default async function connection(socket: SocketIO.Socket) {
     }
 
     if (!meeting.currentSpeaker && queuedSpeakers.length === 0) {
-      emitAll('nextSpeaker', speaker);
+      emitAll(Message.Type.newCurrentSpeaker, speaker);
       meeting.currentSpeaker = speaker;
     } else {
       queuedSpeakers.splice(index, 0, speaker);
-      emitAll('newSpeaker', {
+      emitAll(Message.Type.newQueuedSpeaker, {
         position: index,
         speaker: speaker
       });
@@ -95,16 +96,18 @@ export default async function connection(socket: SocketIO.Socket) {
       meeting.currentSpeaker = meeting.queuedSpeakers.shift()!;
     }
     await updateMeeting(meeting);
-    emitAll('nextSpeaker', meeting.currentSpeaker);
+    emitAll(Message.Type.newCurrentSpeaker, meeting.currentSpeaker);
   }
 
   function disconnect() {
     socks.delete(socket);
   }
 }
-
-function emitAll(name: string | symbol, ...args: any[]) {
+function emitAll(type: Message.Type.newQueuedSpeaker, message: Message.NewQueuedSpeaker): void;
+function emitAll(type: Message.Type.newCurrentSpeaker, message: Message.NewCurrentSpeaker): void;
+function emitAll(type: any, ...args: any[]) {
   socks.forEach(s => {
-    s.emit(name, ...args);
+    // sad cast is sad
+    s.emit(type, ...args);
   });
 }

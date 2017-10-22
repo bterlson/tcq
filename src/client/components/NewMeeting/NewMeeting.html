@@ -1,0 +1,22 @@
+<div>
+  <div class="field">
+    <div class="control">
+        <div class="label">Chairs</div>
+        <input class=input v-model=chairs>
+        <div :class="['help', errorMessage ? 'is-danger' : '']">
+          <div v-if="errorMessage">
+            {{ errorMessage }}
+          </div>
+          <div v-else>
+            Chairs control the agenda and speaker queue. Enter GitHub user names separated by commas.
+          </div>
+        </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <p class="control">
+      <button class="button is-primary" @click=newMeeting>Start a New Meeting</button>
+    </p>
+  </div>
+</div>

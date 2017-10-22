@@ -1,0 +1,23 @@
+$navbar-background-color: #fed;
+$navbar-item-hover-background-color: lighten($navbar-background-color, 10%);
+@import '~bulma';
+@import '../../navbar.scss';
+
+.intro-content {
+  margin: 0 20px;
+}
+
+.intro-title {
+  font-size: $size-1;
+  font-weight: normal;
+
+  .emph {
+    font-weight: bold;
+  }
+}
+
+.feature-list {
+  font-size: $size-4;
+  list-style-type: disc;
+  margin-left: 1em;
+}

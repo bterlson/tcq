@@ -1,6 +1,6 @@
 import Vue from 'vue';
-import { TopicTypes } from '../../shared/Speaker';
-import { NewTopicControl } from './NewTopicControl';
+import { TopicTypes } from '../../../shared/Speaker';
+import { NewTopicControl } from '../NewTopicControl/NewTopicControl';
 import template from './SpeakerControls.html';
 
 export const SpeakerControls = template(

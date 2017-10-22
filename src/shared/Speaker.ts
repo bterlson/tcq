@@ -1,11 +1,10 @@
 import * as uuid from 'uuid';
+import User from './User';
 
 export default interface Speaker {
-  name: string;
-  organization?: string;
-  topic?: string;
+  topic: string;
   type: TopicTypes;
-  ghid: string | null;
+  user: User;
   uuid: string;
 };
 

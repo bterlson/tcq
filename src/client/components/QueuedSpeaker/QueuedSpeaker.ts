@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import Speaker from '../../shared/Speaker';
+import Speaker from '../../../shared/Speaker';
 import template from './QueuedSpeaker.html';
 
 export const QueuedSpeaker = template(
@@ -11,7 +11,7 @@ export const QueuedSpeaker = template(
     },
     computed: {
       displayedOrg(): string {
-        return this.speaker.organization ? ` (${this.speaker.organization})` : '';
+        return this.speaker.user.organization ? ` (${this.speaker.user.organization})` : '';
       }
     }
   })

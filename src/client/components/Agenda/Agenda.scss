@@ -1,0 +1,55 @@
+@import '~bulma';
+
+.agenda-item {
+  display: flex;
+  line-height: $size-4;
+  align-items: center;
+}
+
+.agenda-item-number {
+  margin-right: 10px;
+  font-size: $size-1;
+  line-height: $size-1;
+  width: 50px;
+  text-align: right;
+  font-weight: lighter;
+  font-variant-numeric: tabular-nums;
+}
+
+#agenda div.dragging .agenda-item-number {
+  visibility: hidden;
+}
+
+.agenda-item-name {
+  font-weight: lighter;
+}
+.agenda-item-owner {
+  font-size: $size-6;
+}
+
+.agenda-item-details {
+  padding-top: 5px;
+}
+
+.new-agenda-item-link {
+  padding-left: 35px;
+  padding-top: 10px;
+  display: inline-block;
+}
+
+.new-agenda-item-form {
+  padding-left: 60px;
+  margin-top: 10px;
+}
+
+.agenda-item-control input {
+  width: 400px;
+}
+
+.timebox-control input {
+  width: 75px;
+}
+
+.owner-control input {
+  width: 175px;
+}

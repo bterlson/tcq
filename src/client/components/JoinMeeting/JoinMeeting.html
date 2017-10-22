@@ -1,0 +1,16 @@
+<div>
+  <div class="label">Meeting ID</div>
+  <div class="field has-addons">
+    <div class="control">
+      <input
+        class=input type=text size=5 maxlength=4 
+        v-model=meetingId
+        v-bind:class="{ 'is-danger': hasError }"
+        @keyup.enter=joinMeeting>
+    </div>
+    <div class="control">
+      <a class="button is-primary" @click=joinMeeting>Join</a>
+    </div>
+  </div>
+  <div class="help" v-bind:class="{ 'is-danger': hasError }">{{helpText}}</div>
+</div>

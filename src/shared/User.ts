@@ -1,5 +1,6 @@
 export default interface User {
   name: string;
   organization: string;
-  ghid: string;
+  ghid: number;
+  ghUsername: string;
 };

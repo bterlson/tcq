@@ -1,10 +1,10 @@
 let chairs = new Set([
-  '11236' /* brian */,
-  '972891' /* daniel */,
-  '189835' /* littledan */,
-  '301201' /* leo balter */,
-  '6708936' /* rex */
+  11236 /* brian */,
+  972891 /* daniel */,
+  189835 /* littledan */,
+  301201 /* leo balter */,
+  6708936 /* rex */
 ]);
-export function isChair(userid: string) {
+export function isChair(userid: number) {
   return chairs.has(userid);
 }

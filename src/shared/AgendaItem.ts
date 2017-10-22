@@ -1,8 +1,11 @@
+import User from './User';
+
 interface AgendaItem {
-  title: string;
-  description: string;
-  ghid?: string;
   name: string;
-  organization: string;
+  description?: string;
+  timebox?: number;
+  user: User;
+  id: string;
 }
+
 export default AgendaItem;

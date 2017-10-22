@@ -1,8 +1,6 @@
 import Vue from 'vue';
-import Speaker from '../../shared/Speaker';
+import Speaker from '../../../shared/Speaker';
 import template from './CurrentSpeaker.html';
-
-let str = 'hello';
 
 export const CurrentSpeaker = template(
   Vue.extend({
@@ -18,11 +16,11 @@ export const CurrentSpeaker = template(
     },
     computed: {
       displayedOrg(): string {
-        return this.speaker.organization ? ` (${this.speaker.organization})` : '';
+        return this.speaker.user.organization ? ` (${this.speaker.user.organization})` : '';
       },
 
       isMe(): boolean {
-        return this.speaker.ghid === ghid;
+        return this.speaker.user.ghid === ghid;
       },
 
       isChair(): boolean {

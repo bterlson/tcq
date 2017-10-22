@@ -1,0 +1,36 @@
+import * as draggable from '@shopify/draggable';
+console.log(draggable.Sortable);
+let { Sortable } = draggable;
+import Vue from 'vue';
+
+export default {
+  bind: function(el: Element) {
+    let sortable = new Sortable([el], {
+      appendTo: () => document.body
+    });
+    let lastMove: { oldIndex: number; newIndex: number } | null = null;
+
+    sortable.on('drag:start', function(e: any) {
+      lastMove = null;
+      el.dispatchEvent(new CustomEvent('sortable:start', e.data));
+    });
+
+    sortable.on('sortable:sorted', function(e: any) {
+      let moves = e.data.moves;
+      console.log('moves', moves);
+      if (!lastMove) {
+        lastMove = moves;
+      } else {
+        lastMove.newIndex = moves.newIndex - 1;
+      }
+
+      el.dispatchEvent(new CustomEvent('sortable:sorted', e.data));
+    });
+
+    sortable.on('drag:stop', function(e: any) {
+      el.dispatchEvent(new CustomEvent('sortable:stop', e.data));
+      if (!lastMove) return;
+      el.dispatchEvent(new CustomEvent('sortable:reorder', { detail: lastMove }));
+    });
+  }
+};

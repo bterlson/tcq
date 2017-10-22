@@ -1,0 +1,66 @@
+$primary: hsl(48, 100%, 67%);
+$primary-invert: #222;
+@import '~bulma';
+
+#tcq-logo {
+  font-size: 32px;
+}
+
+.time-remaining {
+  font-size: 42px;
+}
+
+.navbar {
+  border-bottom: 2px solid $light;
+}
+
+.navbar a {
+  font-size: 24px;
+}
+
+.speaker-controls,
+.speaker-controls:not(:last-child) {
+  @extend .level;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.agenda-item-header,
+.agenda-item-header:not(:last-child) {
+  @extend .data-block-header;
+  color: $link;
+}
+
+.topic-header,
+.topic-header:not(:last-child) {
+  @extend .data-block-header;
+  color: $info;
+}
+
+.speaking-header,
+.speaking-header:not(:last-child) {
+  @extend .data-block-header;
+  color: lighten($dark, 20%);
+}
+
+.data-block-header,
+.data-block-header:not(:last-child) {
+  @extend .subtitle;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin-bottom: 0;
+}
+
+.data-block-data {
+  font-size: $size-4;
+  line-height: $size-4;
+  font-weight: lighter;
+  margin-bottom: 0;
+}
+
+.data-block-details {
+}
+
+#agenda {
+  font-size: $size-4;
+}

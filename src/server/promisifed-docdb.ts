@@ -9,7 +9,7 @@ import {
   NewDocument
 } from 'documentdb';
 import { CDB_SECRET } from './secrets';
-import { Meeting } from './database-types';
+import Meeting from '../shared/Meeting';
 
 const host = db.HOST;
 const masterKey = CDB_SECRET;
@@ -39,7 +39,7 @@ export function replaceDocument<T extends RetrievedDocument>(
   originalDocument: RetrievedDocument,
   updates: Partial<T>
 ): Promise<RetrievedDocument> {
-  const updatedDocument = { ...originalDocument, ...updates as any } as T;
+  const updatedDocument = { ...originalDocument, ...(updates as any) } as T;
   return new Promise((resolve, reject) => {
     client.replaceDocument(collection._self, updatedDocument, (err, resource) => {
       if (err) {

@@ -1,7 +1,5 @@
-export default interface GitHubAuthenticatedUser {
-  name: string;
-  company: string;
-  ghid: string;
+import User from './User';
+export default interface GitHubAuthenticatedUser extends User {
   accessToken: string;
   refreshToken: string;
 };

@@ -9,6 +9,7 @@ import Speaker from '../shared/Speaker';
 import socketHandler from './socket-hander';
 import DocumentDBSession = require('documentdb-session');
 import * as dbConstants from './db';
+import * as bodyParser from 'body-parser';
 
 const app = express();
 const server = new Server(app);
@@ -32,7 +33,7 @@ const session = Session({
   saveUninitialized: true
 });
 
-app.use(require('body-parser').urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(session);
 app.use(passport.initialize());
 app.use(passport.session());

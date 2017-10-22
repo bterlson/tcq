@@ -11,7 +11,7 @@ import { DocumentResource } from 'documentdb-typescript/typings/_DocumentDB';
 
 const meetingsCollection = getMeetingsCollection();
 
-export async function updateMeeting(meeting: Meeting & DocumentResource) {
+export async function updateMeeting(meeting: Meeting) {
   let collection = await meetingsCollection;
   await collection.storeDocumentAsync(meeting, docdb.StoreMode.UpdateOnly);
 }
@@ -20,6 +20,12 @@ export async function getMeeting(meetingId: string) {
   let collection = await meetingsCollection;
 
   return (await collection.findDocumentAsync(meetingId)) as Meeting & DocumentResource;
+}
+
+export async function createMeeting(meeting: Meeting) {
+  let collection = await meetingsCollection;
+
+  return collection.storeDocumentAsync(meeting);
 }
 
 export async function getMeetingsCollection() {

@@ -1,22 +1,32 @@
 var path = require('path');
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
-function resolve (dir) {
-  return path.join(__dirname, '..', dir)
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
+
+var extractSass = new ExtractTextPlugin({
+  filename: '[name].css',
+  allChunks: true,
+  ignoreOrder: true
+});
+
+function resolve(dir) {
+  return path.join(__dirname, '..', dir);
 }
 
-
-
-function resolve (dir) {
-
-  return path.join(__dirname, '..', dir)
-
+function resolve(dir) {
+  return path.join(__dirname, '..', dir);
 }
+
 module.exports = {
-  entry: './src/client/components/app.ts',
+  entry: {
+    app: './src/client/pages/meeting/meeting.ts',
+    home: './src/client/pages/home/home.ts',
+    new: './src/client/pages/new/new.ts'
+  },
   output: {
     path: path.resolve(__dirname, '../../dist/client/'),
-    filename: 'build.js'
+    filename: '[name].build.js',
+    publicPath: '/'
   },
   module: {
     rules: [
@@ -28,10 +38,27 @@ module.exports = {
       {
         test: /\.html$/,
         loader: 'vue-template-loader',
-        exclude: resolve('client/index.html'),
+        exclude: [
+          resolve('client/pages/meeting/meeting.html'),
+          resolve('client/pages/home/home.html'),
+          resolve('client/pages/new/new.html')
+        ],
         options: {
-            scoped: true
+          scoped: true
         }
+      },
+      {
+        test: /\.scss$/,
+        use: extractSass.extract({
+          use: [
+            {
+              loader: 'css-loader'
+            },
+            {
+              loader: 'sass-loader'
+            }
+          ]
+        })
       }
     ]
   },
@@ -51,9 +78,24 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      filename: 'index.html',
-      template: './src/client/index.html',
-      inject: true
-    })
+      filename: './meeting.html',
+      chunks: ['common', 'app'],
+      template: './src/client/pages/meeting/meeting.html'
+    }),
+    new HtmlWebpackPlugin({
+      filename: './new.html',
+      chunks: ['common', 'new'],
+      template: './src/client/pages/new/new.html'
+    }),
+    new HtmlWebpackPlugin({
+      filename: './home.html',
+      chunks: ['common', 'home'],
+      inject: 'head',
+      template: './src/client/pages/home/home.html'
+    }),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'common'
+    }),
+    extractSass
   ]
 };

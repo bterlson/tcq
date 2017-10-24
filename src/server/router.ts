@@ -112,8 +112,11 @@ router.post('/meetings', async (req, res) => {
 
   let meeting: Meeting = {
     chairs: chairUsers,
-    currentAgendaItemId: null,
-    currentSpeaker: null,
+    currentAgendaItem: undefined,
+    currentSpeaker: undefined,
+    currentTopic: undefined,
+    timeboxEnd: undefined,
+    timeboxSecondsLeft: undefined,
     agenda: [],
     queuedSpeakers: [],
     id

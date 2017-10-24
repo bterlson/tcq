@@ -1,0 +1,26 @@
+$item-margin: 20px;
+
+.queue-item {
+  margin: 10px 0;
+  display: flex;
+}
+
+.queue-item-number {
+  flex-grow: 0;
+  margin-right: $item-margin;
+  font-variant-numeric: tabular-nums;
+  font-size: 3.2rem;
+  line-height: 3.2rem;
+}
+.queue-item-meta {
+  margin-right: $item-margin;
+  flex-grow: 0;
+}
+
+.queue-item-topic {
+  flex-grow: 1;
+}
+
+.queue-type-topic {
+  border-top: 1px solid #ccc;
+}

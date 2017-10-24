@@ -1,0 +1,12 @@
+@import '~bulma';
+
+input[type='text'] {
+  width: 500px;
+}
+
+.speaker-controls,
+.speaker-controls:not(:last-child) {
+  @extend .level;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}

@@ -1,8 +1,8 @@
 import User from '../../../shared/User';
 import Vue from 'vue';
-import { QueuedSpeaker } from '../QueuedSpeaker/QueuedSpeaker';
-import { CurrentSpeaker } from '../CurrentSpeaker/CurrentSpeaker';
-import { SpeakerControls } from '../SpeakerControls/SpeakerControls';
+
+import { QueueControl } from '../QueueControl/QueueControl';
+
 import { Agenda } from '../Agenda/Agenda';
 import * as socketio from 'socket.io-client';
 import Speaker from '../../../shared/Speaker';
@@ -12,6 +12,24 @@ import './app.scss';
 import AgendaItem from '../../../shared/AgendaItem';
 import Meeting from '../../../shared/Meeting';
 
+Vue.mixin({
+  methods: {
+    formatUser(user: User) {
+      let str = '';
+      if (user.name) {
+        str += user.name;
+      } else {
+        str += '@' + user.ghUsername;
+      }
+
+      if (user.organization) {
+        str += ' (' + user.organization + ')';
+      }
+
+      return str;
+    }
+  }
+});
 interface AdditionalAppState {
   user: User;
   socket: Message.ClientSocket | null;
@@ -30,26 +48,27 @@ let AppComponent = Vue.extend({
       isChair: false,
       chairs: [] as User[],
       user: {} as User,
-      currentSpeaker: null,
+      currentSpeaker: undefined,
+      currentTopic: undefined,
       queuedSpeakers: [],
-      currentAgendaItemId: null,
+      currentAgendaItem: undefined,
       agenda: [],
       socket: null,
       view: 'agenda',
+      timeboxEnd: undefined,
+      timeboxSecondsLeft: undefined,
       notifyRequestFailure: () => {},
       notifyRequestSuccess: () => {}
     } as Meeting & AdditionalAppState;
   },
   components: {
-    QueuedSpeaker,
-    CurrentSpeaker,
-    SpeakerControls,
-    Agenda
+    Agenda,
+    QueueControl
   },
   methods: {
-    newTopic(message: Message.NewTopic) {
+    newTopic(message: Message.NewQueuedSpeakerRequest) {
       if (!this.socket) return;
-      this.socket.emit(Message.Type.newTopic, message); // make this {} and you'll get an error on the wrong param?
+      this.socket.emit(Message.Type.newQueuedSpeakerRequest, message); // make this {} and you'll get an error on the wrong param?
     },
 
     nextSpeaker() {
@@ -63,11 +82,11 @@ let AppComponent = Vue.extend({
 
     showQueue() {
       (this.$refs['agenda'] as Vue).$el.setAttribute('style', 'display: none;');
-      (this.$refs['queue'] as Element).setAttribute('style', '');
+      (this.$refs['queue'] as Vue).$el.setAttribute('style', '');
     },
 
     showAgenda() {
-      (this.$refs['queue'] as Element).setAttribute('style', 'display: none;');
+      (this.$refs['queue'] as Vue).$el.setAttribute('style', 'display: none;');
       (this.$refs['agenda'] as Vue).$el.setAttribute('style', '');
     },
 
@@ -97,11 +116,8 @@ let AppComponent = Vue.extend({
   watch: {
     chairs() {
       this.isChair = this.chairs.some(u => {
-        console.log(u.ghid, this.user.ghid);
         return u.ghid === this.user.ghid;
       });
-      console.log(this.user);
-      console.log(this.isChair);
     }
   },
   created() {
@@ -115,11 +131,10 @@ let AppComponent = Vue.extend({
     });
 
     this.socket.on(Message.Type.state, data => {
-      this.queuedSpeakers = data.queuedSpeakers;
-      this.currentSpeaker = data.currentSpeaker;
-      this.agenda = data.agenda;
-      this.chairs = data.chairs;
-      this.user = data.user;
+      Object.keys(data).forEach(prop => {
+        // this is unfortunate
+        (this as any)[prop] = (data as any)[prop];
+      });
     });
 
     this.socket.on(Message.Type.newQueuedSpeaker, data => {
@@ -139,12 +154,21 @@ let AppComponent = Vue.extend({
       this.notifyResponse(data);
     });
 
+    this.socket.on(Message.Type.newCurrentTopic, data => {
+      this.currentTopic = data;
+    });
+
     this.socket.on(Message.Type.reorderAgendaItem, data => {
       this.agenda.splice(data.newIndex, 0, this.agenda.splice(data.oldIndex, 1)[0]);
     });
 
     this.socket.on(Message.Type.deleteAgendaItem, data => {
       this.agenda.splice(data.index, 1);
+    });
+
+    this.socket.on(Message.Type.nextAgendaItem, data => {
+      console.log('got data', data);
+      this.currentAgendaItem = data;
     });
   }
 });

@@ -6,6 +6,7 @@ import * as Message from '../../../shared/Messages';
 import uuid from 'uuid';
 import AgendaItem from '../../../shared/AgendaItem';
 import { NewAgendaItemRequest } from '../../../shared/Messages';
+import { AgendaItemComponent } from '../AgendaItem/AgendaItemComponent';
 
 export const Agenda = template(
   Vue.extend({
@@ -27,12 +28,13 @@ export const Agenda = template(
       }
     },
     components: {
-      draggable
+      draggable,
+      agendaItem: AgendaItemComponent
     },
     methods: {
       async reorderAgendaItems(e: any) {
         let { newIndex, oldIndex } = e;
-        this.toggleLoading();
+        this.loading = true;
         try {
           await (this.$root as any).sendRequest(Message.Type.reorderAgendaItemRequest, {
             newIndex,
@@ -41,19 +43,19 @@ export const Agenda = template(
         } catch (e) {
           this.agenda.splice(oldIndex, 0, this.agenda.splice(newIndex, 1)[0]);
         } finally {
-          this.toggleLoading();
+          this.loading = false;
           (this.$refs['drag-container'] as Vue).$el.classList.remove('dragging');
         }
       },
 
       async deleteAgendaItem(index: number) {
-        this.toggleLoading();
+        this.loading = true;
         try {
           await (this.$root as any).sendRequest(Message.Type.deleteAgendaItemRequest, {
             index
           });
         } finally {
-          this.toggleLoading();
+          this.loading = false;
         }
       },
       dragStart() {
@@ -80,7 +82,7 @@ export const Agenda = template(
           this.errorMessage = e.message;
         } finally {
           (this.$refs['create-button'] as Element).classList.toggle('is-loading');
-          this.toggleLoading();
+          this.loading = false;
         }
       },
       showForm() {
@@ -94,10 +96,6 @@ export const Agenda = template(
         this.errorMessage = '';
         this.creating = false;
         this.newAgendaItem = { name: '' } as any;
-      },
-      toggleLoading() {
-        this.loading = !this.loading;
-        console.log('set loading to ' + this.loading);
       }
     }
   })

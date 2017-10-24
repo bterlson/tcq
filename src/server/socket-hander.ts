@@ -9,7 +9,6 @@ import * as Message from '../shared/Messages';
 import { updateMeeting, getMeeting, getMeetingsCollection } from './db';
 import { TopicTypes } from '../shared/Speaker';
 import gha from './ghapi';
-const DOCUMENT_ID = '9db4a2cb-2574-4480-ac15-4eba403f4bff';
 const PRIORITIES: Speaker['type'][] = ['poo', 'question', 'reply', 'topic'];
 import * as uuid from 'uuid';
 import axios from 'axios';
@@ -44,21 +43,54 @@ export default async function connection(socket: Message.ServerSocket) {
 
   const meeting = await getMeeting(meetingId);
 
-  // send meeting state
-  socket.emit(Message.Type.state, {
-    currentSpeaker: meeting.currentSpeaker,
-    queuedSpeakers: meeting.queuedSpeakers,
-    agenda: meeting.agenda,
-    chairs: meeting.chairs,
-    user: user
-  });
+  // way too many type annotations
+  let state: Message.State = Object.keys(meeting)
+    .filter(k => k[0] !== '_')
+    .reduce((s, k) => {
+      (s as any)[k] = (meeting as any)[k];
+      return s;
+    }, {}) as any;
+  state.user = user;
 
-  socket.on(Message.Type.newTopic, newTopic);
+  socket.emit(Message.Type.state, state);
+
+  socket.on(Message.Type.newQueuedSpeakerRequest, newTopic);
   socket.on(Message.Type.nextSpeaker, nextSpeaker);
   socket.on(Message.Type.disconnect, disconnect);
   socket.on(Message.Type.newAgendaItemRequest, newAgendaItem);
   socket.on(Message.Type.reorderAgendaItemRequest, reorderAgendaItem);
   socket.on(Message.Type.deleteAgendaItemRequest, deleteAgendaItem);
+  socket.on(Message.Type.nextAgendaItemRequest, nextAgendaItem);
+
+  async function nextAgendaItem(message: Message.NextAgendaItemRequest) {
+    const meeting = await getMeeting(meetingId);
+
+    if (meeting.currentAgendaItem && meeting.currentAgendaItem.id !== message.currentItemId) {
+      socket.emit(Message.Type.Response, { status: 403, message: 'Agenda item out of sync' });
+      return;
+    }
+
+    if (!meeting.currentAgendaItem) {
+      // waiting for meeting to start, so kick it off.
+      meeting.currentAgendaItem = meeting.agenda[0];
+    } else {
+      let id = meeting.currentAgendaItem.id;
+      let currentIndex = meeting.agenda.findIndex(i => i.id === id);
+      meeting.currentAgendaItem = meeting.agenda[currentIndex + 1];
+    }
+
+    meeting.currentSpeaker = {
+      id: uuid(),
+      user: meeting.currentAgendaItem.user,
+      topic: 'Introducing: ' + meeting.currentAgendaItem.name,
+      type: 'topic'
+    };
+
+    await updateMeeting(meeting);
+    socket.emit(Message.Type.Response, { status: 200 });
+    emitAll(Message.Type.nextAgendaItem, meeting.currentAgendaItem);
+    emitAll(Message.Type.newCurrentSpeaker, meeting.currentSpeaker);
+  }
 
   async function deleteAgendaItem(message: Message.DeleteAgendaItem) {
     const meeting = await getMeeting(meetingId);
@@ -93,7 +125,7 @@ export default async function connection(socket: Message.ServerSocket) {
       socket.emit(Message.Type.Response, { status: 403 });
       return;
     }
-    console.log('np np');
+
     // populate the agenda item owner's user data from github if necessary
     let owner;
 
@@ -118,26 +150,19 @@ export default async function connection(socket: Message.ServerSocket) {
     emitAll(Message.Type.newAgendaItem, agendaItem);
   }
 
-  async function newTopic(message: Message.NewTopic) {
+  async function newTopic(message: Message.NewQueuedSpeakerRequest) {
     const speaker: Speaker = {
       user,
       ...message
     };
 
-    await enqueueSpeaker(speaker, DOCUMENT_ID);
+    await enqueueSpeaker(speaker, meetingId);
   }
 
   async function enqueueSpeaker(speaker: Speaker, meetingId: string) {
     const meeting = await getMeeting(meetingId);
 
     const { currentSpeaker, queuedSpeakers } = meeting;
-
-    const currentSpeakerIds = new Set<string>();
-    if (currentSpeaker) {
-      currentSpeakerIds.add(currentSpeaker.uuid);
-    }
-
-    queuedSpeakers.forEach(s => currentSpeakerIds.add(s.uuid));
 
     let index = queuedSpeakers.findIndex(function(queuedSpeaker) {
       return PRIORITIES.indexOf(queuedSpeaker.type) > PRIORITIES.indexOf(speaker.type);
@@ -147,36 +172,56 @@ export default async function connection(socket: Message.ServerSocket) {
       index = queuedSpeakers.length;
     }
 
-    if (!meeting.currentSpeaker && queuedSpeakers.length === 0) {
-      emitAll(Message.Type.newCurrentSpeaker, speaker);
-      meeting.currentSpeaker = speaker;
-    } else {
-      queuedSpeakers.splice(index, 0, speaker);
-      emitAll(Message.Type.newQueuedSpeaker, {
-        position: index,
-        speaker: speaker
-      });
-    }
+    queuedSpeakers.splice(index, 0, speaker);
 
     await updateMeeting(meeting);
+    socket.emit(Message.Type.Response, { status: 200 });
+    emitAll(Message.Type.newQueuedSpeaker, {
+      position: index,
+      speaker: speaker
+    });
   }
 
   async function nextSpeaker() {
-    const meeting = await getMeeting(DOCUMENT_ID);
-    if (!meeting.currentSpeaker) return;
-
-    if (user.ghid && meeting.currentSpeaker.user.ghid !== user.ghid && !isChair(user.ghid)) {
+    const meeting = await getMeeting(meetingId);
+    if (
+      user.ghid &&
+      meeting.currentSpeaker &&
+      meeting.currentSpeaker.user.ghid !== user.ghid &&
+      !isChair(user, meeting)
+    ) {
       // unauthorized
+      socket.emit(Message.Type.Response, { status: 402, message: 'not authorized' });
       return;
     }
 
+    const oldTopic = meeting.currentTopic;
     if (meeting.queuedSpeakers.length === 0) {
-      meeting.currentSpeaker = null;
+      if (meeting.currentAgendaItem) {
+        meeting.currentSpeaker = {
+          id: uuid(),
+          user: meeting.currentAgendaItem.user,
+          topic: 'Presenting: ' + meeting.currentAgendaItem.name,
+          type: 'topic'
+        };
+      } else {
+        // not sure if this can happen with current meeting flow
+        meeting.currentSpeaker = undefined;
+      }
+      meeting.currentTopic = undefined;
     } else {
       meeting.currentSpeaker = meeting.queuedSpeakers.shift()!;
+      if (meeting.currentSpeaker.type === 'topic') {
+        meeting.currentTopic = meeting.currentSpeaker;
+      }
     }
+
     await updateMeeting(meeting);
+    socket.emit(Message.Type.Response, { status: 200 });
     emitAll(Message.Type.newCurrentSpeaker, meeting.currentSpeaker);
+    if (oldTopic !== meeting.currentTopic) {
+      emitAll(Message.Type.newCurrentTopic, meeting.currentTopic);
+    }
   }
 
   function disconnect() {

@@ -5,7 +5,7 @@ export default interface Speaker {
   topic: string;
   type: TopicTypes;
   user: User;
-  uuid: string;
+  id: string;
 };
 
 export type TopicTypes = 'topic' | 'reply' | 'question' | 'poo';

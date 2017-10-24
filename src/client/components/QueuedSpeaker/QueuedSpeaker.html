@@ -1,3 +1,15 @@
-<div class="queue-item draggable-source" v-bind:class="'queue-type-' + speaker.type">
-  {{speaker.name}}</span>{{displayedOrg}}: {{speaker.topic}}
+<div class="queue-item" v-bind:class="'queue-type-' + speaker.type">
+  <div class="queue-item-number">
+    {{ index + 1 }}
+  </div>
+  <div class="queue-item-meta">
+    <div class="is-size-5">
+      <span v-if="speaker.type === 'poo'" class="has-text-danger">POINT OF ORDER:</span>
+      <span v-if="speaker.type === 'question'" class="is-size-5 has-text-success">Clarifying Question:</span>
+      <span v-if="speaker.type === 'topic'" class="is-size-5 has-text-link">New Topic:</span>
+      <span v-if="speaker.type === 'reply'" class="is-size-5 has-text-info">Reply:</span>
+      {{speaker.topic}}
+    </div>
+    <div>{{formatUser(speaker.user)}}</div>
+  </div>
 </div>

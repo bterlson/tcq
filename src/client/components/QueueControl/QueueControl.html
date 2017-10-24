@@ -1,0 +1,56 @@
+<section class=section>
+  <div class="columns">
+    <div class="column is-9 is-content">
+      <h2 class="agenda-item-header is-primary">Agenda Item</h2>
+      <div v-if="currentAgendaItem">
+        <div class="data-block-data">{{ currentAgendaItem.name }}</div>
+        <div class="data-block-details">
+          <span>{{ formatUser(currentAgendaItem.user) }}</span>
+          <span v-if="currentAgendaItem.timebox">🕒 {{ currentAgendaItem.timebox }} minutes</span>
+          <button v-if="$root.isChair" class="button is-small" @click=nextAgendaItem>Next Agenda Item</button>
+        </div>
+      </div>
+      <div v-else>
+        <div class="data-block-data">Waiting for the meeting to start...</div>
+        <div class="data-block-details" v-if="$root.isChair">
+          <button class="button is-small" @click=nextAgendaItem>Start Meeting</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="column is-3 is-content">
+      <h2 class="data-block-header">Time Remaining</h2>
+      <div class="is-2 data-block-data level is-mobile">
+        <div class="level-left">
+          <span class="level-item time-remaining">4:24</span>
+          <button class="level-item button">Start</button>
+          <button class="level-item button">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="columns">
+    <div class="column is-12">
+      <div v-if=currentTopic>
+        <h2 class="topic-header">Topic</h2>
+        <div class="data-block-data">{{currentTopic.topic}}</div>
+        <div class="data-block-details">{{formatUser(currentTopic.user)}}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="columns">
+    <div class="column is-12 is-content">
+      <current-speaker :speaker=currentSpeaker></current-speaker>
+      <speaker-controls :currentSpeaker=currentSpeaker></speaker-controls>
+    </div>
+  </div>
+  <div class="columns">
+    <div class="column is-12">
+      <div class="data-block-header">Speaker Queue</div>
+
+      <queued-speaker v-for="(speaker, index) in queuedSpeakers" :key="speaker.id" v-bind="{ speaker: speaker, index: index }"></queued-speaker>
+    </div>
+  </div>
+</section>

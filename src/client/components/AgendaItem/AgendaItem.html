@@ -1,11 +1,10 @@
-<div class="agenda-item">
-  <div class="agenda-item-number">{{item.index + 1}}</div>
+<div :class="{'agenda-item': true, 'agenda-item-current': item.id === $root.currentAgendaItem.id}">
+  <div class="agenda-item-number">{{index + 1}}</div>
   <div class="agenda-item-details">
     <div class="agenda-item-name">{{item.name}}</div>
-    <div class="agenda-item-owner">
-      {{item.user.name}}
+    <div class="agenda-item-owner">{{formatUser(item.user)}}
       <span v-if="item.timebox"> 🕒 {{item.timebox}} minutes</span>
-      <a v-if="$root.isChair" @click="deleteAgendaItem(index)" class="button is-small">delete</a>
+      <a v-if="$root.isChair" @click="emitDelete" class="button is-small">delete</a>
     </div>
   </div>
 </div>

@@ -8,8 +8,8 @@
 
 .agenda-item-number {
   margin-right: 10px;
-  font-size: $size-1;
-  line-height: $size-1;
+  font-size: 3.2rem;
+  line-height: 3.2rem;
   width: 50px;
   text-align: right;
   font-weight: lighter;
@@ -52,4 +52,10 @@
 
 .owner-control input {
   width: 175px;
+}
+
+.agenda-item-current {
+  background-color: #eee;
+  border: 1px solid #ccc;
+  padding: 20px 0;
 }

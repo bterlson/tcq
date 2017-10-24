@@ -1,30 +1,36 @@
 import Vue from 'vue';
 import Speaker from '../../../shared/Speaker';
 import template from './CurrentSpeaker.html';
+import * as Message from '../../../shared/Messages';
 
 export const CurrentSpeaker = template(
   Vue.extend({
+    data() {
+      return {
+        loading: false
+      };
+    },
     props: {
       speaker: {
         default: null as Speaker | null
       }
     },
     methods: {
-      doneSpeaking() {
-        this.$emit('current-speaker-finished');
+      async doneSpeaking() {
+        this.loading = true;
+        try {
+          await (this.$root as any).sendRequest(Message.Type.nextSpeaker, {
+            currentSpeakerId: this.speaker ? this.speaker.id : undefined
+          } as Message.NextSpeakerRequest);
+        } finally {
+          console.log('setting to false');
+          this.loading = false;
+        }
       }
     },
     computed: {
-      displayedOrg(): string {
-        return this.speaker.user.organization ? ` (${this.speaker.user.organization})` : '';
-      },
-
       isMe(): boolean {
-        return this.speaker.user.ghid === ghid;
-      },
-
-      isChair(): boolean {
-        return isChair;
+        return this.speaker.user.ghid === (this.$root as any).user.ghid;
       }
     }
   })

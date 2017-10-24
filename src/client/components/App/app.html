@@ -19,69 +19,14 @@
       </div>
     </div>
   </nav>
-  <Agenda ref=agenda id=agenda :agenda=agenda :socket=socket></Agenda>
-  <section class=section ref="queue" id="queue" style="display: none;">
-    <div class="columns">
-      <div class="column is-9 is-content">
-        
-        <h2 class="agenda-item-header is-primary">Agenda Item</h2>
-        <div class="data-block-data">Private State for Stage 2</div>
-        <div class="data-block-details">
-          <span>@bterlson</span>
-          <span>🕒 5 minutes</span>
-        </div>
-      </div>
-
-      <div class="column is-3 is-content">
-          <h2 class="data-block-header">Time Remaining</h2>
-          <div class="is-2 data-block-data level is-mobile">
-            <div class="level-left">
-                <span class="level-item time-remaining">4:24</span>
-                <button class="level-item button">Start</button>
-                <button class="level-item button">Reset</button>
-            </div>
-          </div>
-      </div>
-    </div>
-
-    <div class="columns">
-      <div class="column is-12">
-        <h2 class="topic-header">Topic</h2>
-        <div class="data-block-data">{currentSpeaker.topic}</div>
-        <div class="data-block-details">{currentSpeaker.name}{displayedOrg}</div>
-      </div>
-    </div>
-
-    <div class="columns" v-if="currentSpeaker">
-      <div class="column is-12 is-content">
-        <current-speaker :speaker=currentSpeaker @current-speaker-finished=nextSpeaker></current-speaker>
-      </div>
-    </div>
-    <div class="columns">
-      <div class="column is-12">
-        <div class="data-block-header">Speaker Queue</div>
-        <div class="speaker-controls">
-          <div class="level-left">
-            <button class="level-item button is-link">New Topic</button>
-            <button class="level-item button is-info">Discuss Current Topic</button>
-            <button class="level-item button is-success">Clarifying Question</button>
-            <button class="level-item button is-danger">Point of Order</button>
-          </div>
-        </div>
-        <div>
-          <queued-speaker v-for="speaker in queuedSpeakers" :key="speaker.id" v-bind="{ speaker: speaker }"></queued-speaker>
-        </div>
-      </div>
-    </div>
-    
-
-    <!--
-    <speaker-controls
-      @new-topic=newTopic
-      :currentTopic="this.currentSpeaker ? this.currentSpeaker.topic : ''"
-      >
-    </speaker-controls>
-  -->
-  </section>
-
+  <agenda ref=agenda id=agenda :agenda=agenda :socket=socket></agenda>
+  <queue-control ref=queue id=queue style="display:none;"
+    :currentAgendaItem=currentAgendaItem
+    :currentSpeaker=currentSpeaker
+    :currentTopic=currentTopic
+    :queuedSpeakers=queuedSpeakers
+    :timeboxEnd=timeboxEnd
+    :timeboxSecondsLeft=timeboxSecondsLeft
+    :socket=socket
+    ></queue-control>
 </div>

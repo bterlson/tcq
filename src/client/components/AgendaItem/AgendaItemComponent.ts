@@ -4,11 +4,16 @@ import './AgendaItem.scss';
 
 import AgendaItem from '../../../shared/AgendaItem';
 
-export const AgendaItem = template(
+export const AgendaItemComponent = template(
   Vue.extend({
     props: {
       index: 0,
       item: {} as AgendaItem
+    },
+    methods: {
+      emitDelete() {
+        this.$emit('delete', this.$props.item);
+      }
     }
   })
 );

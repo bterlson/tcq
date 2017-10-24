@@ -1,7 +1,36 @@
-<div id="speaker-controls">
-    <div class=button id=new-topic @click="showNewTopic('topic')">New Topic</div>
-    <div class=button id=reply @click="showNewTopic('reply')">Reply</div>
-    <div class=button id=speaker-question @click="showNewTopic('clarify')">Clarifying Question</div>
-    <div class=button id=speaker-poo @click="showNewTopic('poo')">Point of Order</div>
-    <new-topic-control :topicType="this.topicType" :currentTopic=currentTopic  v-if="this.creatingTopic" @cancel=cancel @new-topic=newTopic></new-topic-control>
+<div class="speaker-controls">
+  <div class="level" v-if="!creating">
+    <div class="level-left">
+      <button class="level-item button is-link" @click="showTopicForm('topic')">New Topic</button>
+      <button class="level-item button is-info" @click="showTopicForm('reply')" v-if="$root.currentTopic">Discuss Current Topic</button>
+      <button class="level-item button is-success" @click="showTopicForm('question')">Clarifying Question</button>
+      <button class="level-item button is-danger" @click="showTopicForm('poo')">Point of Order</button>
+    </div>
   </div>
+  <div id=new-topic-control v-if="creating">
+    <label class="label">{{topicHeader()}}</label>
+    <div class="field is-grouped">
+      <div class="control" id=new-topic-form>
+        <input
+          class="input"
+          ref=field
+          type=text
+          v-model=topicDescription
+          @keyup.enter=enqueue
+          @keyup.esc=cancel
+          placeholder="Short topic description" />
+      </div>
+      <div class="control">
+        <button @click=enqueue :class="{
+          'button-submit': true,
+          'button': true,
+          'is-link': topicType === 'topic',
+          'is-info': topicType === 'reply',
+          'is-danger': topicType === 'poo',
+          'is-success': topicType === 'question'
+        }">Enter Queue</button>
+        <button @click=cancel class="button-cancel button is-danger">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,11 +1,19 @@
 <div>
   <h2 class="speaking-header">Speaking</h2>
-  <div class="data-block-data">{{speaker.name}}{{displayedOrg}}</div>
-  <div class="data-block-details">{{speaker.topic}}</div>
-  <div v-if="isMe" id="current-speaker-controls">
-    <button @click=doneSpeaking class="button is-primary">I'm Done Speaking</button>
+  <div v-if='speaker'>
+      <div class="data-block-data">{{formatUser(speaker.user)}}</div>
+      <div class="data-block-details">{{speaker.topic}}</div>
+      <div v-if="isMe" id="current-speaker-controls">
+        <button @click=doneSpeaking :class="{ button: true, 'is-primary': true, 'is-loading': loading }">I'm Done Speaking</button>
+      </div>
+      <div v-if="!isMe && $root.isChair" id="current-speaker-chair-controls">
+        <button @click=doneSpeaking :class="{ button: true, 'is-loading': loading }">Next Speaker</button>
+      </div>
   </div>
-  <div v-if="!isMe && isChair" id="current-speaker-chair-controls">
-    <button @click=doneSpeaking class="button">Next Speaker</button>
+  <div v-else>
+    <div class="data-block-data">Nobody speaking yet... enter the queue to get started</div>
+    <div v-if="$root.isChair" id="current-speaker-chair-controls">
+      <button v-if="$root.queuedSpeakers.length > 0" @click=doneSpeaking :class="{ button: true, 'is-loading': loading }">Next Speaker</button>
+    </div>
   </div>
 </div>

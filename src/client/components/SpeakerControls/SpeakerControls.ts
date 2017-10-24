@@ -1,33 +1,62 @@
 import Vue from 'vue';
 import { TopicTypes } from '../../../shared/Speaker';
-import { NewTopicControl } from '../NewTopicControl/NewTopicControl';
 import template from './SpeakerControls.html';
+import * as Message from '../../../shared/Messages';
+import uuid from 'uuid';
+import './SpeakerControls.scss';
 
 export const SpeakerControls = template(
   Vue.extend({
     props: {
-      currentTopic: ''
+      currentTopic: {
+        default: undefined
+      }
     },
     data: function() {
       return {
-        creatingTopic: false,
-        topicType: null as TopicTypes | null
+        creating: false,
+        topicType: null as TopicTypes | null,
+        topicDescription: ''
       };
     },
     methods: {
-      showNewTopic(type: TopicTypes) {
-        this.creatingTopic = true;
-        this.topicType = type;
-      },
       cancel: function() {
-        this.creatingTopic = false;
+        this.creating = false;
       },
-      newTopic: function(topic: string) {
-        this.$emit('new-topic', topic);
+
+      showTopicForm(type: TopicTypes) {
+        this.creating = true;
+        this.topicType = type;
+        this.topicDescription = '';
+        setTimeout(() => {
+          (this.$refs['field'] as HTMLInputElement).focus();
+        }, 1);
+      },
+
+      async enqueue() {
+        try {
+          await (this.$root as any).sendRequest(Message.Type.newQueuedSpeakerRequest, {
+            id: uuid(),
+            topic: this.topicDescription,
+            type: this.topicType
+          } as Message.NewQueuedSpeakerRequest);
+          this.cancel();
+        } finally {
+        }
+      },
+
+      topicHeader() {
+        switch (this.topicType) {
+          case 'poo':
+            return 'Point of Order';
+          case 'question':
+            return 'Clarifying Question';
+          case 'topic':
+            return 'New Topic';
+          case 'reply':
+            return 'Reply to ' + (this.$root as any).currentTopic.topic;
+        }
       }
-    },
-    components: {
-      NewTopicControl
     }
   })
 );

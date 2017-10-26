@@ -1,4 +1,8 @@
 import * as secrets from './secrets';
+// important that this block come very early as appinsights shims many things
+import client from './telemetry';
+
+import log from './logger';
 import * as express from 'express';
 import passport from './passport';
 import routes from './router';
@@ -15,7 +19,10 @@ const app = express();
 const server = new Server(app);
 const io = socketio(server, { perMessageDeflate: false });
 const port = process.env.PORT || 3000;
-server.listen(port);
+log.info('Starting server');
+server.listen(port, function() {
+  log.info('Application started and listening on port ' + port);
+});
 
 const DocumentDBStore = DocumentDBSession(Session);
 
@@ -33,6 +40,11 @@ const session = Session({
   saveUninitialized: true
 });
 
+app.use(function(req, res, next) {
+  client.trackNodeHttpRequest({ request: req, response: res });
+  next();
+});
+app.use(require('express-bunyan-logger')());
 app.use(bodyParser.json());
 app.use(session);
 app.use(passport.initialize());

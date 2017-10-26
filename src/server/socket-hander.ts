@@ -12,6 +12,7 @@ import gha from './ghapi';
 const PRIORITIES: Speaker['type'][] = ['poo', 'question', 'reply', 'topic'];
 import * as uuid from 'uuid';
 import axios from 'axios';
+import client from './telemetry';
 
 let socks = new Set<Message.ServerSocket>();
 
@@ -31,6 +32,7 @@ export default async function connection(socket: Message.ServerSocket) {
   }
 
   socks.add(socket);
+
   let githubUser: GitHubAuthenticatedUser = (socket.handshake as any).session.passport.user;
   let ghapi = gha(githubUser.accessToken);
 
@@ -54,19 +56,19 @@ export default async function connection(socket: Message.ServerSocket) {
 
   socket.emit(Message.Type.state, state);
 
-  socket.on(Message.Type.newQueuedSpeakerRequest, newTopic);
-  socket.on(Message.Type.nextSpeaker, nextSpeaker);
+  socket.on(Message.Type.newQueuedSpeakerRequest, instrumentSocketFn(newTopic));
+  socket.on(Message.Type.nextSpeaker, instrumentSocketFn(nextSpeaker));
   socket.on(Message.Type.disconnect, disconnect);
-  socket.on(Message.Type.newAgendaItemRequest, newAgendaItem);
-  socket.on(Message.Type.reorderAgendaItemRequest, reorderAgendaItem);
-  socket.on(Message.Type.deleteAgendaItemRequest, deleteAgendaItem);
-  socket.on(Message.Type.nextAgendaItemRequest, nextAgendaItem);
+  socket.on(Message.Type.newAgendaItemRequest, instrumentSocketFn(newAgendaItem));
+  socket.on(Message.Type.reorderAgendaItemRequest, instrumentSocketFn(reorderAgendaItem));
+  socket.on(Message.Type.deleteAgendaItemRequest, instrumentSocketFn(deleteAgendaItem));
+  socket.on(Message.Type.nextAgendaItemRequest, instrumentSocketFn(nextAgendaItem));
 
-  async function nextAgendaItem(message: Message.NextAgendaItemRequest) {
+  async function nextAgendaItem(respond: Responder, message: Message.NextAgendaItemRequest) {
     const meeting = await getMeeting(meetingId);
 
     if (meeting.currentAgendaItem && meeting.currentAgendaItem.id !== message.currentItemId) {
-      socket.emit(Message.Type.Response, { status: 403, message: 'Agenda item out of sync' });
+      respond(403, { message: 'Agenda item out of sync' });
       return;
     }
 
@@ -87,42 +89,41 @@ export default async function connection(socket: Message.ServerSocket) {
     };
 
     await updateMeeting(meeting);
-    socket.emit(Message.Type.Response, { status: 200 });
+    respond(200);
     emitAll(Message.Type.nextAgendaItem, meeting.currentAgendaItem);
     emitAll(Message.Type.newCurrentSpeaker, meeting.currentSpeaker);
   }
 
-  async function deleteAgendaItem(message: Message.DeleteAgendaItem) {
+  async function deleteAgendaItem(respond: Responder, message: Message.DeleteAgendaItem) {
     const meeting = await getMeeting(meetingId);
     if (!isChair(user, meeting)) {
-      socket.emit(Message.Type.Response, { status: 403 });
+      respond(403);
       return;
     }
     meeting.agenda.splice(message.index, 1);
     await updateMeeting(meeting);
 
-    socket.emit(Message.Type.Response, { status: 200 });
+    respond(200);
     emitAll(Message.Type.deleteAgendaItem, message);
   }
 
-  async function reorderAgendaItem(message: Message.ReorderAgendaItemRequest) {
+  async function reorderAgendaItem(respond: Responder, message: Message.ReorderAgendaItemRequest) {
     const meeting = await getMeeting(meetingId);
     if (!isChair(user, meeting)) {
-      socket.emit(Message.Type.Response, { status: 403 });
+      respond(403);
       return;
     }
 
     meeting.agenda.splice(message.newIndex, 0, meeting.agenda.splice(message.oldIndex, 1)[0]);
     await updateMeeting(meeting);
-
-    socket.emit(Message.Type.Response, { status: 200 });
+    respond(200);
     emitAll(Message.Type.reorderAgendaItem, message);
   }
 
-  async function newAgendaItem(message: Message.NewAgendaItemRequest) {
+  async function newAgendaItem(respond: Responder, message: Message.NewAgendaItemRequest) {
     const meeting = await getMeeting(meetingId);
     if (!isChair(user, meeting)) {
-      socket.emit(Message.Type.Response, { status: 403 });
+      respond(403);
       return;
     }
 
@@ -132,7 +133,7 @@ export default async function connection(socket: Message.ServerSocket) {
     try {
       owner = await getByUsername(message.ghUsername, githubUser.accessToken);
     } catch (e) {
-      socket.emit(Message.Type.Response, { status: 400, message: 'Github username not found' });
+      respond(400, { message: 'Github username not found' });
       return;
     }
 
@@ -145,21 +146,17 @@ export default async function connection(socket: Message.ServerSocket) {
 
     meeting.agenda.push(agendaItem);
     await updateMeeting(meeting);
-
-    socket.emit(Message.Type.Response, { status: 200 });
+    client.trackEvent({ name: 'New Agenda Item' });
     emitAll(Message.Type.newAgendaItem, agendaItem);
+    respond(200);
   }
 
-  async function newTopic(message: Message.NewQueuedSpeakerRequest) {
+  async function newTopic(respond: Responder, message: Message.NewQueuedSpeakerRequest) {
     const speaker: Speaker = {
       user,
       ...message
     };
 
-    await enqueueSpeaker(speaker, meetingId);
-  }
-
-  async function enqueueSpeaker(speaker: Speaker, meetingId: string) {
     const meeting = await getMeeting(meetingId);
 
     const { currentSpeaker, queuedSpeakers } = meeting;
@@ -175,14 +172,15 @@ export default async function connection(socket: Message.ServerSocket) {
     queuedSpeakers.splice(index, 0, speaker);
 
     await updateMeeting(meeting);
-    socket.emit(Message.Type.Response, { status: 200 });
     emitAll(Message.Type.newQueuedSpeaker, {
       position: index,
       speaker: speaker
     });
+    client.trackEvent({ name: 'New Speaker' });
+    respond(200);
   }
 
-  async function nextSpeaker() {
+  async function nextSpeaker(respond: Responder) {
     const meeting = await getMeeting(meetingId);
     if (
       user.ghid &&
@@ -191,7 +189,7 @@ export default async function connection(socket: Message.ServerSocket) {
       !isChair(user, meeting)
     ) {
       // unauthorized
-      socket.emit(Message.Type.Response, { status: 402, message: 'not authorized' });
+      respond(402, { message: 'not authorized' });
       return;
     }
 
@@ -217,16 +215,42 @@ export default async function connection(socket: Message.ServerSocket) {
     }
 
     await updateMeeting(meeting);
-    socket.emit(Message.Type.Response, { status: 200 });
+    respond(200);
     emitAll(Message.Type.newCurrentSpeaker, meeting.currentSpeaker);
     if (oldTopic !== meeting.currentTopic) {
       emitAll(Message.Type.newCurrentTopic, meeting.currentTopic);
     }
   }
 
+  function instrumentSocketFn(fn: (r: Responder, ...args: any[]) => Promise<any>) {
+    let start: number;
+
+    function respond(status: number, message?: any) {
+      if (!message) message = {};
+      message.status = status;
+      socket.emit(Message.Type.Response, message);
+      client.trackRequest({
+        resultCode: String(status),
+        name: 'WebSocket Handler: ' + fn.name,
+        duration: Date.now() - start,
+        url: socket.handshake.url,
+        success: String(status)[0] === '2'
+      });
+    }
+
+    return function(...args: any[]) {
+      start = Date.now();
+      fn.call(undefined, respond, ...args);
+    };
+  }
+
   function disconnect() {
     socks.delete(socket);
   }
+}
+
+interface Responder {
+  (code: number, message?: object): void;
 }
 
 function emitAll(type: Message.Type, ...args: any[]) {

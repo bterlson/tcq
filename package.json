@@ -25,6 +25,8 @@
   "dependencies": {
     "@types/axios": "^0.14.0",
     "@types/bunyan": "^1.8.3",
+    "@types/express": "^4.0.39",
+    "@types/uuid": "^3.4.3",
     "applicationinsights": "^1.0.0",
     "axios": "^0.16.2",
     "base64-url": "^2.0.0",
@@ -68,7 +70,7 @@
     "sass-loader": "^6.0.6",
     "style-loader": "^0.19.0",
     "ts-loader": "^2.3.7",
-    "typescript": "^2.6.0-dev.20170920",
+    "typescript": "^2.5.3",
     "vue-template-compiler": "^2.5.2",
     "vue-template-loader": "^0.3.1",
     "webpack": "^3.6.0",

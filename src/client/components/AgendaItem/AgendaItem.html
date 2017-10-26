@@ -1,4 +1,4 @@
-<div :class="{'agenda-item': true, 'agenda-item-current': item.id === $root.currentAgendaItem.id}">
+<div :class="{'agenda-item': true, 'agenda-item-current': $root.currentAgendaItem && item.id === $root.currentAgendaItem.id}">
   <div class="agenda-item-number">{{index + 1}}</div>
   <div class="agenda-item-details">
     <div class="agenda-item-name">{{item.name}}</div>

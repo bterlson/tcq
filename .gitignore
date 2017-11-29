@@ -1,0 +1,3 @@
+set-secrets.ps1
+node_modules
+dist

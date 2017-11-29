@@ -1,0 +1,22 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var Type;
+(function (Type) {
+    Type["newQueuedSpeakerRequest"] = "newQueuedSpeakerRequest";
+    Type["nextSpeaker"] = "nextSpeaker";
+    Type["nextAgendaItemRequest"] = "nextAgendaItemRequest";
+    Type["nextAgendaItem"] = "nextAgendaItem";
+    Type["newCurrentSpeaker"] = "newCurrentSpeaker";
+    Type["newQueuedSpeaker"] = "newQueuedSpeaker";
+    Type["newAgendaItemRequest"] = "newAgendaItemRequest";
+    Type["newAgendaItem"] = "newAgendaItem";
+    Type["newCurrentTopic"] = "newCurrentTopic";
+    Type["deleteAgendaItemRequest"] = "deleteAgendaItemRequest";
+    Type["deleteAgendaItem"] = "deleteAgendaItem";
+    Type["reorderAgendaItemRequest"] = "reorderAgendaItemRequest";
+    Type["reorderAgendaItem"] = "reorderAgendaItem";
+    Type["Response"] = "Response";
+    Type["userInfo"] = "userInfo";
+    Type["state"] = "state";
+    Type["disconnect"] = "disconnect";
+})(Type = exports.Type || (exports.Type = {}));

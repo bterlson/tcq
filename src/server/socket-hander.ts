@@ -49,16 +49,20 @@ export default async function connection(socket: Message.ServerSocket) {
 
   const meeting = await getMeeting(meetingId);
 
-  // way too many type annotations
-  let state: Message.State = Object.keys(meeting)
-    .filter(k => k[0] !== '_')
-    .reduce((s, k) => {
-      (s as any)[k] = (meeting as any)[k];
-      return s;
-    }, {}) as any;
-  state.user = user;
+  function meetingToState(meeting: Meeting) {
+    // way too many type annotations
+    let state: Message.State = Object.keys(meeting)
+      .filter(k => k[0] !== '_')
+      .reduce((s, k) => {
+        (s as any)[k] = (meeting as any)[k];
+        return s;
+      }, {}) as any;
 
-  socket.emit(Message.Type.state, state);
+    state.user = user;
+    return state;
+  }
+
+  socket.emit(Message.Type.state, meetingToState(meeting));
 
   socket.on(Message.Type.newQueuedSpeakerRequest, instrumentSocketFn(newTopic));
   socket.on(Message.Type.nextSpeaker, instrumentSocketFn(nextSpeaker));
@@ -176,10 +180,7 @@ export default async function connection(socket: Message.ServerSocket) {
     queuedSpeakers.splice(index, 0, speaker);
 
     await updateMeeting(meeting);
-    emitAll(Message.Type.newQueuedSpeaker, {
-      position: index,
-      speaker: speaker
-    });
+    emitAll(Message.Type.state, meetingToState(meeting));
     client.trackEvent({ name: 'New Speaker' });
     respond(200);
   }
@@ -220,10 +221,13 @@ export default async function connection(socket: Message.ServerSocket) {
 
     await updateMeeting(meeting);
     respond(200);
+    /*
     emitAll(Message.Type.newCurrentSpeaker, meeting.currentSpeaker);
     if (oldTopic !== meeting.currentTopic) {
       emitAll(Message.Type.newCurrentTopic, meeting.currentTopic);
     }
+    */
+    emitAll(Message.Type.state, meetingToState(meeting));
   }
 
   function instrumentSocketFn(fn: (r: Responder, ...args: any[]) => Promise<any>) {

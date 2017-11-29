@@ -34,15 +34,12 @@ export const SpeakerControls = template(
       },
 
       async enqueue() {
-        try {
-          await (this.$root as any).sendRequest(Message.Type.newQueuedSpeakerRequest, {
-            id: uuid(),
-            topic: this.topicDescription,
-            type: this.topicType
-          } as Message.NewQueuedSpeakerRequest);
-          this.cancel();
-        } finally {
-        }
+        await (this.$root as any).sendRequest(Message.Type.newQueuedSpeakerRequest, {
+          id: uuid(),
+          topic: this.topicDescription,
+          type: this.topicType
+        } as Message.NewQueuedSpeakerRequest);
+        this.cancel();
       },
 
       topicHeader() {

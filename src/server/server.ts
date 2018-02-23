@@ -16,7 +16,7 @@ import * as dbConstants from './db';
 import * as bodyParser from 'body-parser';
 
 const app = express();
-const server = new Server(app);
+const server = new Server(app as any);// this seems to work, and I see docs about it, but typings complain
 const io = socketio(server, { perMessageDeflate: false });
 const port = process.env.PORT || 3000;
 log.info('Starting server');

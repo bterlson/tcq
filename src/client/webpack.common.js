@@ -21,7 +21,8 @@ module.exports = {
   entry: {
     app: './src/client/pages/meeting/meeting.ts',
     home: './src/client/pages/home/home.ts',
-    new: './src/client/pages/new/new.ts'
+    new: './src/client/pages/new/new.ts',
+    test: './src/client/pages/test/test.ts'
   },
   output: {
     path: path.resolve(__dirname, '../../dist/client/'),
@@ -41,7 +42,8 @@ module.exports = {
         exclude: [
           resolve('client/pages/meeting/meeting.html'),
           resolve('client/pages/home/home.html'),
-          resolve('client/pages/new/new.html')
+          resolve('client/pages/new/new.html'),
+          resolve('client/pages/test/test.html')
         ],
         options: {
           scoped: true
@@ -92,6 +94,12 @@ module.exports = {
       chunks: ['common', 'home'],
       inject: 'head',
       template: './src/client/pages/home/home.html'
+    }),
+    new HtmlWebpackPlugin({
+      filename: './test.html',
+      chunks: ['common', 'test'],
+      inject: 'head',
+      template: './src/client/pages/test/test.html'
     }),
     new webpack.optimize.CommonsChunkPlugin({
       name: 'common'

@@ -70,7 +70,7 @@
     "sass-loader": "^6.0.6",
     "style-loader": "^0.19.0",
     "ts-loader": "^2.3.7",
-    "typescript": "^2.5.3",
+    "typescript": "^2.7.2",
     "vue-template-compiler": "^2.5.2",
     "vue-template-loader": "^0.3.1",
     "webpack": "^3.6.0",

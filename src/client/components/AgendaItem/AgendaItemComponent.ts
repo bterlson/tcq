@@ -7,8 +7,12 @@ import AgendaItem from '../../../shared/AgendaItem';
 export const AgendaItemComponent = template(
   Vue.extend({
     props: {
-      index: 0,
-      item: {} as AgendaItem
+      index: {
+        default: 0
+      },
+      item: {
+        default: {} as AgendaItem
+      }
     },
     methods: {
       emitDelete() {

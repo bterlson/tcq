@@ -13,12 +13,8 @@ const PRIORITIES: Speaker['type'][] = ['poo', 'question', 'reply', 'topic'];
 import * as uuid from 'uuid';
 import axios from 'axios';
 import client from './telemetry';
-import * as pLimit from 'p-limit';
 
 let socks = new Set<Message.ServerSocket>();
-
-// not ideal, but necessary to prevent interleaving updates
-const waitTurn = pLimit(1);
 
 export default async function connection(socket: Message.ServerSocket) {
   if (!(socket.handshake as any).session || !(socket.handshake as any).session.passport) {
@@ -242,9 +238,9 @@ export default async function connection(socket: Message.ServerSocket) {
       });
     }
 
-    return function(...args: any[]): Promise<any> {
+    return function(...args: any[]) {
       start = Date.now();
-      return waitTurn(() => fn.call(undefined, respond, ...args));
+      fn.call(undefined, respond, ...args);
     };
   }
 
@@ -261,11 +257,5 @@ function emitAll(type: Message.Type, ...args: any[]) {
   socks.forEach(s => {
     // sad cast is sad
     s.emit(type, ...args);
-  });
-}
-
-function timeout(t: number) {
-  return new Promise(res => {
-    setTimeout(() => res(), t);
   });
 }

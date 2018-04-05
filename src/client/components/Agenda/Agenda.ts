@@ -7,10 +7,11 @@ import uuid from 'uuid';
 import AgendaItem from '../../../shared/AgendaItem';
 import { NewAgendaItemRequest } from '../../../shared/Messages';
 import { AgendaItemComponent } from '../AgendaItem/AgendaItemComponent';
+import { request } from '../../ClientSocket';
 
 export const Agenda = template(
   Vue.extend({
-    data: function() {
+    data: function () {
       return {
         creating: false,
         loading: false,
@@ -20,9 +21,6 @@ export const Agenda = template(
       };
     },
     props: {
-      socket: {
-        default: null as Message.ClientSocket | null
-      },
       agenda: {
         default: [] as AgendaItem[]
       }
@@ -36,7 +34,7 @@ export const Agenda = template(
         let { newIndex, oldIndex } = e;
         this.loading = true;
         try {
-          await (this.$root as any).sendRequest(Message.Type.reorderAgendaItemRequest, {
+          await request('reorderAgendaItemRequest', {
             newIndex,
             oldIndex
           });
@@ -51,7 +49,7 @@ export const Agenda = template(
       async deleteAgendaItem(index: number) {
         this.loading = true;
         try {
-          await (this.$root as any).sendRequest(Message.Type.deleteAgendaItemRequest, {
+          await request('deleteAgendaItemRequest', {
             index
           });
         } finally {
@@ -64,7 +62,6 @@ export const Agenda = template(
 
       async createNewAgendaItem() {
         if (!this.newAgendaItem.name) return;
-        if (!this.socket) return;
 
         if (this.newAgendaItem.timebox && !this.newAgendaItem.timebox.match(/^\d{0,3}$/)) {
           this.timeboxError = '???';
@@ -73,10 +70,9 @@ export const Agenda = template(
           this.timeboxError = '';
         }
 
-        let app = this.$root; // can't be typed unless I can extract the instance type from the constructor
         (this.$refs['create-button'] as Element).classList.toggle('is-loading');
         try {
-          await (app as any).sendRequest(Message.Type.newAgendaItemRequest, this.newAgendaItem);
+          await request('newAgendaItemRequest', this.newAgendaItem);
           this.cancelForm();
         } catch (e) {
           this.errorMessage = e.message;
@@ -85,6 +81,7 @@ export const Agenda = template(
           this.loading = false;
         }
       },
+
       showForm() {
         this.creating = true;
         this.newAgendaItem.ghUsername = this.$root.$data.user.ghUsername;
@@ -92,6 +89,7 @@ export const Agenda = template(
           (this.$refs['item-name-input'] as HTMLInputElement).focus();
         });
       },
+
       cancelForm() {
         this.errorMessage = '';
         this.creating = false;

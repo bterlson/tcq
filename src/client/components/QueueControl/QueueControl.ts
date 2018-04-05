@@ -7,6 +7,7 @@ import AgendaItem from '../../../shared/AgendaItem';
 import Speaker from '../../../shared/Speaker';
 import * as Message from '../../../shared/Messages';
 import uuid from 'uuid';
+import { request } from '../../ClientSocket';
 
 export const QueueControl = template(
   Vue.extend({
@@ -40,7 +41,7 @@ export const QueueControl = template(
     },
     methods: {
       async nextAgendaItem() {
-        await (this.$root as any).sendRequest(Message.Type.nextAgendaItemRequest, {
+        await request('nextAgendaItemRequest', {
           currentItemId: this.currentAgendaItem ? this.currentAgendaItem.id : undefined
         } as Message.NextAgendaItemRequest);
       }

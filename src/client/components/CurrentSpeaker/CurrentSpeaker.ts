@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Speaker from '../../../shared/Speaker';
 import template from './CurrentSpeaker.html';
 import * as Message from '../../../shared/Messages';
+import { request } from '../../ClientSocket';
 
 export const CurrentSpeaker = template(
   Vue.extend({
@@ -19,7 +20,7 @@ export const CurrentSpeaker = template(
       async doneSpeaking() {
         this.loading = true;
         try {
-          await (this.$root as any).sendRequest(Message.Type.nextSpeaker, {
+          await request('nextSpeaker', {
             currentSpeakerId: this.speaker ? this.speaker.id : undefined
           } as Message.NextSpeakerRequest);
         } finally {

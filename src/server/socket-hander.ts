@@ -13,6 +13,7 @@ const PRIORITIES: Speaker['type'][] = ['poo', 'question', 'reply', 'topic'];
 import * as uuid from 'uuid';
 import axios from 'axios';
 import client from './telemetry';
+import { StrictBroadcast } from 'strict-event-emitter-types';
 
 let socks = new Set<Message.ServerSocket>();
 
@@ -52,17 +53,17 @@ export default async function connection(socket: Message.ServerSocket) {
       (s as any)[k] = (meeting as any)[k];
       return s;
     }, {}) as any;
+
   state.user = user;
 
-  socket.emit(Message.Type.state, state);
-
-  socket.on(Message.Type.newQueuedSpeakerRequest, instrumentSocketFn(newTopic));
-  socket.on(Message.Type.nextSpeaker, instrumentSocketFn(nextSpeaker));
-  socket.on(Message.Type.disconnect, disconnect);
-  socket.on(Message.Type.newAgendaItemRequest, instrumentSocketFn(newAgendaItem));
-  socket.on(Message.Type.reorderAgendaItemRequest, instrumentSocketFn(reorderAgendaItem));
-  socket.on(Message.Type.deleteAgendaItemRequest, instrumentSocketFn(deleteAgendaItem));
-  socket.on(Message.Type.nextAgendaItemRequest, instrumentSocketFn(nextAgendaItem));
+  socket.emit('state', state);
+  socket.on('newQueuedSpeakerRequest', instrumentSocketFn(newTopic));
+  socket.on('nextSpeaker', instrumentSocketFn(nextSpeaker));
+  socket.on('disconnect', disconnect);
+  socket.on('newAgendaItemRequest', instrumentSocketFn(newAgendaItem));
+  socket.on('reorderAgendaItemRequest', instrumentSocketFn(reorderAgendaItem));
+  socket.on('deleteAgendaItemRequest', instrumentSocketFn(deleteAgendaItem));
+  socket.on('nextAgendaItemRequest', instrumentSocketFn(nextAgendaItem));
 
   async function nextAgendaItem(respond: Responder, message: Message.NextAgendaItemRequest) {
     const meeting = await getMeeting(meetingId);
@@ -90,8 +91,8 @@ export default async function connection(socket: Message.ServerSocket) {
 
     await updateMeeting(meeting);
     respond(200);
-    emitAll(Message.Type.nextAgendaItem, meeting.currentAgendaItem);
-    emitAll(Message.Type.newCurrentSpeaker, meeting.currentSpeaker);
+    emitAll('nextAgendaItem', meeting.currentAgendaItem);
+    emitAll('newCurrentSpeaker', meeting.currentSpeaker);
   }
 
   async function deleteAgendaItem(respond: Responder, message: Message.DeleteAgendaItem) {
@@ -104,7 +105,7 @@ export default async function connection(socket: Message.ServerSocket) {
     await updateMeeting(meeting);
 
     respond(200);
-    emitAll(Message.Type.deleteAgendaItem, message);
+    emitAll('deleteAgendaItem', message);
   }
 
   async function reorderAgendaItem(respond: Responder, message: Message.ReorderAgendaItemRequest) {
@@ -117,7 +118,7 @@ export default async function connection(socket: Message.ServerSocket) {
     meeting.agenda.splice(message.newIndex, 0, meeting.agenda.splice(message.oldIndex, 1)[0]);
     await updateMeeting(meeting);
     respond(200);
-    emitAll(Message.Type.reorderAgendaItem, message);
+    emitAll('reorderAgendaItem', message);
   }
 
   async function newAgendaItem(respond: Responder, message: Message.NewAgendaItemRequest) {
@@ -147,7 +148,7 @@ export default async function connection(socket: Message.ServerSocket) {
     meeting.agenda.push(agendaItem);
     await updateMeeting(meeting);
     client.trackEvent({ name: 'New Agenda Item' });
-    emitAll(Message.Type.newAgendaItem, agendaItem);
+    emitAll('newAgendaItem', agendaItem);
     respond(200);
   }
 
@@ -161,7 +162,7 @@ export default async function connection(socket: Message.ServerSocket) {
 
     const { currentSpeaker, queuedSpeakers } = meeting;
 
-    let index = queuedSpeakers.findIndex(function(queuedSpeaker) {
+    let index = queuedSpeakers.findIndex(function (queuedSpeaker) {
       return PRIORITIES.indexOf(queuedSpeaker.type) > PRIORITIES.indexOf(speaker.type);
     });
 
@@ -172,7 +173,7 @@ export default async function connection(socket: Message.ServerSocket) {
     queuedSpeakers.splice(index, 0, speaker);
 
     await updateMeeting(meeting);
-    emitAll(Message.Type.newQueuedSpeaker, {
+    emitAll('newQueuedSpeaker', {
       position: index,
       speaker: speaker
     });
@@ -216,9 +217,9 @@ export default async function connection(socket: Message.ServerSocket) {
 
     await updateMeeting(meeting);
     respond(200);
-    emitAll(Message.Type.newCurrentSpeaker, meeting.currentSpeaker);
+    emitAll('newCurrentSpeaker', meeting.currentSpeaker);
     if (oldTopic !== meeting.currentTopic) {
-      emitAll(Message.Type.newCurrentTopic, meeting.currentTopic);
+      emitAll('newCurrentTopic', meeting.currentTopic);
     }
   }
 
@@ -228,7 +229,7 @@ export default async function connection(socket: Message.ServerSocket) {
     function respond(status: number, message?: any) {
       if (!message) message = {};
       message.status = status;
-      socket.emit(Message.Type.Response, message);
+      socket.emit('response', message);
       client.trackRequest({
         resultCode: String(status),
         name: 'WebSocket Handler: ' + fn.name,
@@ -238,7 +239,7 @@ export default async function connection(socket: Message.ServerSocket) {
       });
     }
 
-    return function(...args: any[]) {
+    return function (...args: any[]) {
       start = Date.now();
       fn.call(undefined, respond, ...args);
     };
@@ -253,9 +254,8 @@ interface Responder {
   (code: number, message?: object): void;
 }
 
-function emitAll(type: Message.Type, ...args: any[]) {
+const emitAll: StrictBroadcast<Message.ServerSocket> = function (type: string, arg?: any) {
   socks.forEach(s => {
-    // sad cast is sad
-    s.emit(type, ...args);
+    s.emit(type as any, arg);
   });
 }

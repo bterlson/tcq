@@ -4,6 +4,7 @@ import template from './SpeakerControls.html';
 import * as Message from '../../../shared/Messages';
 import uuid from 'uuid';
 import './SpeakerControls.scss';
+import { request } from '../../ClientSocket';
 
 export const SpeakerControls = template(
   Vue.extend({
@@ -12,7 +13,7 @@ export const SpeakerControls = template(
         default: undefined
       }
     },
-    data: function() {
+    data: function () {
       return {
         creating: false,
         topicType: null as TopicTypes | null,
@@ -20,7 +21,7 @@ export const SpeakerControls = template(
       };
     },
     methods: {
-      cancel: function() {
+      cancel: function () {
         this.creating = false;
       },
 
@@ -34,7 +35,7 @@ export const SpeakerControls = template(
       },
 
       async enqueue() {
-        await (this.$root as any).sendRequest(Message.Type.newQueuedSpeakerRequest, {
+        await request('newQueuedSpeakerRequest', {
           id: uuid(),
           topic: this.topicDescription,
           type: this.topicType

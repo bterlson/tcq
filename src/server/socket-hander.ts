@@ -13,9 +13,9 @@ const PRIORITIES: Speaker['type'][] = ['poo', 'question', 'reply', 'topic'];
 import * as uuid from 'uuid';
 import axios from 'axios';
 import client from './telemetry';
-import { StrictBroadcast } from 'strict-event-emitter-types';
+import { EmitEventNames } from 'strict-event-emitter-types';
 
-let socks = new Set<Message.ServerSocket>();
+let socks = new Map<string, Set<Message.ServerSocket>>();
 
 export default async function connection(socket: Message.ServerSocket) {
   if (!(socket.handshake as any).session || !(socket.handshake as any).session.passport) {
@@ -32,7 +32,13 @@ export default async function connection(socket: Message.ServerSocket) {
     return;
   }
 
-  socks.add(socket);
+  let meetingSocks = socks.get(meetingId);
+  if (!meetingSocks) {
+    meetingSocks = new Set();
+    socks.set(meetingId, meetingSocks);
+  }
+
+  meetingSocks.add(socket);
 
   let githubUser: GitHubAuthenticatedUser = (socket.handshake as any).session.passport.user;
   let ghapi = gha(githubUser.accessToken);
@@ -46,7 +52,6 @@ export default async function connection(socket: Message.ServerSocket) {
 
   const meeting = await getMeeting(meetingId);
 
-  // way too many type annotations
   let state: Message.State = Object.keys(meeting)
     .filter(k => k[0] !== '_')
     .reduce((s, k) => {
@@ -91,8 +96,8 @@ export default async function connection(socket: Message.ServerSocket) {
 
     await updateMeeting(meeting);
     respond(200);
-    emitAll('nextAgendaItem', meeting.currentAgendaItem);
-    emitAll('newCurrentSpeaker', meeting.currentSpeaker);
+    emitAll(meetingId, 'nextAgendaItem', meeting.currentAgendaItem);
+    emitAll(meetingId, 'newCurrentSpeaker', meeting.currentSpeaker);
   }
 
   async function deleteAgendaItem(respond: Responder, message: Message.DeleteAgendaItem) {
@@ -105,7 +110,7 @@ export default async function connection(socket: Message.ServerSocket) {
     await updateMeeting(meeting);
 
     respond(200);
-    emitAll('deleteAgendaItem', message);
+    emitAll(meetingId, 'deleteAgendaItem', message);
   }
 
   async function reorderAgendaItem(respond: Responder, message: Message.ReorderAgendaItemRequest) {
@@ -118,7 +123,7 @@ export default async function connection(socket: Message.ServerSocket) {
     meeting.agenda.splice(message.newIndex, 0, meeting.agenda.splice(message.oldIndex, 1)[0]);
     await updateMeeting(meeting);
     respond(200);
-    emitAll('reorderAgendaItem', message);
+    emitAll(meetingId, 'reorderAgendaItem', message);
   }
 
   async function newAgendaItem(respond: Responder, message: Message.NewAgendaItemRequest) {
@@ -148,7 +153,7 @@ export default async function connection(socket: Message.ServerSocket) {
     meeting.agenda.push(agendaItem);
     await updateMeeting(meeting);
     client.trackEvent({ name: 'New Agenda Item' });
-    emitAll('newAgendaItem', agendaItem);
+    emitAll(meetingId, 'newAgendaItem', agendaItem);
     respond(200);
   }
 
@@ -173,7 +178,7 @@ export default async function connection(socket: Message.ServerSocket) {
     queuedSpeakers.splice(index, 0, speaker);
 
     await updateMeeting(meeting);
-    emitAll('newQueuedSpeaker', {
+    emitAll(meetingId, 'newQueuedSpeaker', {
       position: index,
       speaker: speaker
     });
@@ -217,9 +222,9 @@ export default async function connection(socket: Message.ServerSocket) {
 
     await updateMeeting(meeting);
     respond(200);
-    emitAll('newCurrentSpeaker', meeting.currentSpeaker);
+    emitAll(meetingId, 'newCurrentSpeaker', meeting.currentSpeaker);
     if (oldTopic !== meeting.currentTopic) {
-      emitAll('newCurrentTopic', meeting.currentTopic);
+      emitAll(meetingId, 'newCurrentTopic', meeting.currentTopic);
     }
   }
 
@@ -246,7 +251,12 @@ export default async function connection(socket: Message.ServerSocket) {
   }
 
   function disconnect() {
-    socks.delete(socket);
+    if (!meetingSocks) return;
+    meetingSocks.delete(socket);
+
+    if (meetingSocks.size === 0) {
+      socks.delete(meetingId);
+    }
   }
 }
 
@@ -254,8 +264,11 @@ interface Responder {
   (code: number, message?: object): void;
 }
 
-const emitAll: StrictBroadcast<Message.ServerSocket> = function (type: string, arg?: any) {
-  socks.forEach(s => {
+const emitAll = function (meetingId: string, type: EmitEventNames<Message.ServerSocket>, arg?: any) {
+  const ss = socks.get(meetingId);
+  if (!ss) return;
+
+  ss.forEach(s => {
     s.emit(type as any, arg);
   });
 }

@@ -4,7 +4,7 @@ import GHAuthUser from '../shared/GitHubAuthenticatedUser';
 import { addKnownUser, fromGHAU } from './User';
 const callbackURL =
   process.env.NODE_ENV === 'production'
-    ? 'http://tcq.azurewebsites.net/auth/github/callback'
+    ? 'http://tcq.app/auth/github/callback'
     : 'http://127.0.0.1:3000/auth/github/callback';
 
 export default new GitHubStrategy(

@@ -7,6 +7,7 @@ import StrictEventEmitter, { StrictBroadcast } from 'strict-event-emitter-types'
 
 interface ServerEvents {
   newQueuedSpeakerRequest: NewQueuedSpeakerRequest,
+  deleteQueuedSpeakerRequest: DeleteQueuedSpeakerRequest
   nextSpeaker: NextSpeakerRequest,
   nextAgendaItemRequest: NextAgendaItemRequest,
   newAgendaItemRequest: NewAgendaItemRequest,
@@ -20,6 +21,7 @@ interface ClientEvents {
   nextAgendaItem: NextAgendaItem,
   newCurrentSpeaker: NewCurrentSpeaker,
   newQueuedSpeaker: NewQueuedSpeaker,
+  deleteQueuedSpeaker: DeleteQueuedSpeaker,
   newAgendaItem: AgendaItem,
   newCurrentTopic: NewCurrentTopic,
   reorderAgendaItem: ReorderAgendaItem,
@@ -42,6 +44,13 @@ export interface NewQueuedSpeakerRequest {
 export interface NewQueuedSpeaker {
   position: number;
   speaker: Speaker;
+}
+
+export interface DeleteQueuedSpeaker {
+  id: string;
+}
+export interface DeleteQueuedSpeakerRequest {
+  id: string;
 }
 
 export interface NewAgendaItemRequest {

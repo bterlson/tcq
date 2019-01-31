@@ -11,5 +11,6 @@
       {{speaker.topic}}
     </div>
     <div>{{formatUser(speaker.user)}}</div>
+    <button v-if="isMe" @click=dequeue>Remove</button>
   </div>
 </div>

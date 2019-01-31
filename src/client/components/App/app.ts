@@ -108,6 +108,13 @@ let AppComponent = Vue.extend({
       this.queuedSpeakers.splice(data.position, 0, data.speaker);
     });
 
+    socket.on('deleteQueuedSpeaker', data => {
+      let index = this.queuedSpeakers.findIndex(function (queuedSpeaker) {
+        return queuedSpeaker.id === data.id;
+      });
+      this.queuedSpeakers.splice(index, 1);
+    });
+
     socket.on('newCurrentSpeaker', data => {
       this.currentSpeaker = data;
       this.queuedSpeakers.shift();

@@ -63,6 +63,7 @@ export default async function connection(socket: Message.ServerSocket) {
 
   socket.emit('state', state);
   socket.on('newQueuedSpeakerRequest', instrumentSocketFn(newTopic));
+  socket.on('deleteQueuedSpeakerRequest', instrumentSocketFn(deleteTopic));
   socket.on('nextSpeaker', instrumentSocketFn(nextSpeaker));
   socket.on('disconnect', disconnect);
   socket.on('newAgendaItemRequest', instrumentSocketFn(newAgendaItem));
@@ -183,6 +184,33 @@ export default async function connection(socket: Message.ServerSocket) {
       speaker: speaker
     });
     client.trackEvent({ name: 'New Speaker' });
+    respond(200);
+  }
+
+  async function deleteTopic(respond: Responder, message: Message.DeleteQueuedSpeakerRequest) {
+    const meeting = await getMeeting(meetingId);
+
+    const { queuedSpeakers } = meeting;
+
+    let index = queuedSpeakers.findIndex(function (queuedSpeaker) {
+      return queuedSpeaker.id === message.id;
+    });
+
+    if (index === -1) {
+      respond(404);
+      return;
+    }
+
+    if ( !user.ghid || queuedSpeakers[index].user.ghid !== user.ghid ) {
+      // unauthorized
+      respond(403, { message: 'not authorized' });
+      return;
+    }
+
+    queuedSpeakers.splice(index, 1);
+
+    await updateMeeting(meeting);
+    emitAll(meetingId, 'deleteQueuedSpeaker', message);
     respond(200);
   }
 

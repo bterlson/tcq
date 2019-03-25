@@ -5,12 +5,16 @@
   <div class="queue-item-meta">
     <div class="is-size-5">
       <span v-if="speaker.type === 'poo'" class="has-text-danger">POINT OF ORDER:</span>
-      <span v-if="speaker.type === 'question'" class="is-size-5 has-text-success">Clarifying Question:</span>
+      <span v-if="speaker.type === 'question'" class="is-size-5 has-text-success"
+        >Clarifying Question:</span
+      >
       <span v-if="speaker.type === 'topic'" class="is-size-5 has-text-link">New Topic:</span>
       <span v-if="speaker.type === 'reply'" class="is-size-5 has-text-info">Reply:</span>
-      {{speaker.topic}}
+      {{ speaker.topic }}
     </div>
-    <div>{{formatUser(speaker.user)}}</div>
-    <button v-if="isMe" @click=dequeue>Remove</button>
+    <div>
+      {{ formatUser(speaker.user) }}
+      <a v-if="isMe || $root.isChair" @click="dequeue" class="button is-small">Delete</a>
+    </div>
   </div>
 </div>

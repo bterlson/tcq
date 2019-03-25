@@ -8,7 +8,6 @@ import { request } from '../../ClientSocket';
 export const QueuedSpeaker = template(
   Vue.extend({
     props: {
-      id: {},
       speaker: {
         default: {} as Speaker
       },
@@ -27,8 +26,8 @@ export const QueuedSpeaker = template(
     methods: {
       async dequeue() {
         await request('deleteQueuedSpeakerRequest', {
-          id: this.id
-        } as Message.DeleteQueuedSpeakerRequest);
+          id: this.speaker.id
+        });
       }
     }
   })

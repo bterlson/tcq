@@ -63,7 +63,7 @@ export default async function connection(socket: Message.ServerSocket) {
 
   socket.emit('state', state);
   socket.on('newQueuedSpeakerRequest', instrumentSocketFn(newTopic));
-  socket.on('deleteQueuedSpeakerRequest', instrumentSocketFn(deleteTopic));
+  socket.on('deleteQueuedSpeakerRequest', instrumentSocketFn(deleteQueuedSpeaker));
   socket.on('nextSpeaker', instrumentSocketFn(nextSpeaker));
   socket.on('disconnect', disconnect);
   socket.on('newAgendaItemRequest', instrumentSocketFn(newAgendaItem));
@@ -168,7 +168,7 @@ export default async function connection(socket: Message.ServerSocket) {
 
     const { currentSpeaker, queuedSpeakers } = meeting;
 
-    let index = queuedSpeakers.findIndex(function (queuedSpeaker) {
+    let index = queuedSpeakers.findIndex(function(queuedSpeaker) {
       return PRIORITIES.indexOf(queuedSpeaker.type) > PRIORITIES.indexOf(speaker.type);
     });
 
@@ -187,12 +187,15 @@ export default async function connection(socket: Message.ServerSocket) {
     respond(200);
   }
 
-  async function deleteTopic(respond: Responder, message: Message.DeleteQueuedSpeakerRequest) {
+  async function deleteQueuedSpeaker(
+    respond: Responder,
+    message: Message.DeleteQueuedSpeakerRequest
+  ) {
     const meeting = await getMeeting(meetingId);
 
     const { queuedSpeakers } = meeting;
 
-    let index = queuedSpeakers.findIndex(function (queuedSpeaker) {
+    let index = queuedSpeakers.findIndex(function(queuedSpeaker) {
       return queuedSpeaker.id === message.id;
     });
 
@@ -201,7 +204,7 @@ export default async function connection(socket: Message.ServerSocket) {
       return;
     }
 
-    if ( !user.ghid || queuedSpeakers[index].user.ghid !== user.ghid ) {
+    if (!isChair(user, meeting) && queuedSpeakers[index].user.ghid !== user.ghid) {
       // unauthorized
       respond(403, { message: 'not authorized' });
       return;
@@ -272,7 +275,7 @@ export default async function connection(socket: Message.ServerSocket) {
       });
     }
 
-    return function (...args: any[]) {
+    return function(...args: any[]) {
       start = Date.now();
       fn.call(undefined, respond, ...args);
     };
@@ -292,11 +295,11 @@ interface Responder {
   (code: number, message?: object): void;
 }
 
-const emitAll = function (meetingId: string, type: EmitEventNames<Message.ServerSocket>, arg?: any) {
+const emitAll = function(meetingId: string, type: EmitEventNames<Message.ServerSocket>, arg?: any) {
   const ss = socks.get(meetingId);
   if (!ss) return;
 
   ss.forEach(s => {
     s.emit(type as any, arg);
   });
-}
+};

@@ -1,6 +1,10 @@
 {
   "name": "tcq",
   "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bterlson/tcq"
+  },
   "description": "A TC39 Discussion Queue",
   "main": "index.js",
   "scripts": {

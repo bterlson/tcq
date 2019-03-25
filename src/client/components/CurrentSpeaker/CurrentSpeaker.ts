@@ -24,7 +24,6 @@ export const CurrentSpeaker = template(
             currentSpeakerId: this.speaker ? this.speaker.id : undefined
           } as Message.NextSpeakerRequest);
         } finally {
-          console.log('setting to false');
           this.loading = false;
         }
       }

@@ -264,7 +264,7 @@ export default async function connection(socket: Message.ServerSocket) {
     respond(200);
   }
 
-  async function nextSpeaker(respond: Responder) {
+  async function nextSpeaker(respond: Responder, message: Message.NextSpeakerRequest) {
     const meeting = await getMeeting(meetingId);
     if (
       user.ghid &&
@@ -277,6 +277,10 @@ export default async function connection(socket: Message.ServerSocket) {
       return;
     }
 
+    if (meeting.currentSpeaker && meeting.currentSpeaker.id !== message.currentSpeakerId) {
+      respond(400, { message: 'stale state, next speaker ignored' });
+      return;
+    }
     const oldTopic = meeting.currentTopic;
     if (meeting.queuedSpeakers.length === 0) {
       if (meeting.currentAgendaItem) {

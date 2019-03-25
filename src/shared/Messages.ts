@@ -6,29 +6,32 @@ import AgendaItem from './AgendaItem';
 import StrictEventEmitter, { StrictBroadcast } from 'strict-event-emitter-types';
 
 interface ServerEvents {
-  newQueuedSpeakerRequest: NewQueuedSpeakerRequest,
-  deleteQueuedSpeakerRequest: DeleteQueuedSpeakerRequest
-  nextSpeaker: NextSpeakerRequest,
-  nextAgendaItemRequest: NextAgendaItemRequest,
-  newAgendaItemRequest: NewAgendaItemRequest,
-  reorderAgendaItemRequest: ReorderAgendaItemRequest,
-  deleteAgendaItemRequest: DeleteAgendaItemRequest,
-  userInfo: User,
-  disconnect: void
+  newQueuedSpeakerRequest: NewQueuedSpeakerRequest;
+  deleteQueuedSpeakerRequest: DeleteQueuedSpeakerRequest;
+  nextSpeaker: NextSpeakerRequest;
+  nextAgendaItemRequest: NextAgendaItemRequest;
+  newAgendaItemRequest: NewAgendaItemRequest;
+  reorderAgendaItemRequest: ReorderAgendaItemRequest;
+  reorderQueueRequest: ReorderQueueRequest;
+  deleteAgendaItemRequest: DeleteAgendaItemRequest;
+  userInfo: User;
+  disconnect: void;
 }
 
 interface ClientEvents {
-  nextAgendaItem: NextAgendaItem,
-  newCurrentSpeaker: NewCurrentSpeaker,
-  newQueuedSpeaker: NewQueuedSpeaker,
-  deleteQueuedSpeaker: DeleteQueuedSpeaker,
-  newAgendaItem: AgendaItem,
-  newCurrentTopic: NewCurrentTopic,
-  reorderAgendaItem: ReorderAgendaItem,
-  deleteAgendaItem: DeleteAgendaItem,
-  disconnect: void,
-  state: State,
-  response: Response
+  nextAgendaItem: NextAgendaItem;
+  newCurrentSpeaker: NewCurrentSpeaker;
+  newQueuedSpeaker: NewQueuedSpeaker;
+  deleteQueuedSpeaker: DeleteQueuedSpeaker;
+  newAgendaItem: AgendaItem;
+  newCurrentTopic: NewCurrentTopic;
+  reorderAgendaItem: ReorderAgendaItem;
+  reorderQueue: ReorderQueue;
+  deleteAgendaItem: DeleteAgendaItem;
+  disconnect: void;
+  state: State;
+  response: Response;
+  updateQueuedSpeaker: UpdateQueuedSpeaker;
 }
 
 export interface Response {
@@ -72,10 +75,23 @@ export interface ReorderAgendaItem {
   newIndex: number;
 }
 
+export interface ReorderQueue {
+  oldIndex: number;
+  newIndex: number;
+}
+
+export interface ReorderQueueRequest {
+  id: string;
+  oldIndex: number;
+  newIndex: number;
+}
+
 export interface ReorderAgendaItemRequest {
   oldIndex: number;
   newIndex: number;
 }
+
+export interface UpdateQueuedSpeaker extends Speaker {}
 export interface State extends Meeting {
   user: User;
 }
@@ -87,7 +103,7 @@ export interface NextAgendaItemRequest {
 export interface NextSpeakerRequest {
   currentSpeakerId: string;
 }
-export interface NextAgendaItem extends AgendaItem { }
+export interface NextAgendaItem extends AgendaItem {}
 export type NewCurrentSpeaker = Speaker | undefined;
 export type NewCurrentTopic = Speaker | undefined;
 

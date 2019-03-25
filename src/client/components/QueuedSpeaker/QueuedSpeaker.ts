@@ -28,6 +28,24 @@ export const QueuedSpeaker = template(
         await request('deleteQueuedSpeakerRequest', {
           id: this.speaker.id
         });
+      },
+
+      async moveUp() {
+        if (this.index === 0) return;
+
+        await request('reorderQueueRequest', {
+          id: this.speaker.id,
+          oldIndex: this.index,
+          newIndex: this.index - 1
+        });
+      },
+
+      async moveDown() {
+        await request('reorderQueueRequest', {
+          id: this.speaker.id,
+          oldIndex: this.index,
+          newIndex: this.index + 1
+        });
       }
     }
   })

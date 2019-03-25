@@ -41,7 +41,7 @@ interface AdditionalAppState {
 }
 
 let AppComponent = Vue.extend({
-  data: function () {
+  data: function() {
     return {
       id: '',
       isChair: false,
@@ -55,8 +55,8 @@ let AppComponent = Vue.extend({
       view: 'agenda',
       timeboxEnd: undefined,
       timeboxSecondsLeft: undefined,
-      notifyRequestFailure: () => { },
-      notifyRequestSuccess: () => { }
+      notifyRequestFailure: () => {},
+      notifyRequestSuccess: () => {}
     } as Meeting & AdditionalAppState;
   },
   components: {
@@ -87,7 +87,7 @@ let AppComponent = Vue.extend({
     showAgenda() {
       (this.$refs['queue'] as Vue).$el.setAttribute('style', 'display: none;');
       (this.$refs['agenda'] as Vue).$el.setAttribute('style', '');
-    },
+    }
   },
   watch: {
     chairs() {
@@ -109,7 +109,7 @@ let AppComponent = Vue.extend({
     });
 
     socket.on('deleteQueuedSpeaker', data => {
-      let index = this.queuedSpeakers.findIndex(function (queuedSpeaker) {
+      let index = this.queuedSpeakers.findIndex(function(queuedSpeaker) {
         return queuedSpeaker.id === data.id;
       });
       this.queuedSpeakers.splice(index, 1);
@@ -137,8 +137,19 @@ let AppComponent = Vue.extend({
     });
 
     socket.on('nextAgendaItem', data => {
-      console.log('got data', data);
       this.currentAgendaItem = data;
+    });
+
+    socket.on('reorderQueue', data => {
+      this.queuedSpeakers.splice(data.newIndex, 0, this.queuedSpeakers.splice(data.oldIndex, 1)[0]);
+    });
+
+    socket.on('updateQueuedSpeaker', data => {
+      const speaker = this.queuedSpeakers.find(q => q.id === data.id);
+      if (!speaker) return;
+      speaker.topic = data.topic;
+      speaker.type = data.type;
+      speaker.user = data.user;
     });
   }
 });

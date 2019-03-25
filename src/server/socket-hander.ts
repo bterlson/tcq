@@ -68,6 +68,7 @@ export default async function connection(socket: Message.ServerSocket) {
   socket.on('disconnect', disconnect);
   socket.on('newAgendaItemRequest', instrumentSocketFn(newAgendaItem));
   socket.on('reorderAgendaItemRequest', instrumentSocketFn(reorderAgendaItem));
+  socket.on('reorderQueueRequest', instrumentSocketFn(reorderQueue));
   socket.on('deleteAgendaItemRequest', instrumentSocketFn(deleteAgendaItem));
   socket.on('nextAgendaItemRequest', instrumentSocketFn(nextAgendaItem));
 
@@ -125,6 +126,52 @@ export default async function connection(socket: Message.ServerSocket) {
     await updateMeeting(meeting);
     respond(200);
     emitAll(meetingId, 'reorderAgendaItem', message);
+  }
+
+  async function reorderQueue(respond: Responder, message: Message.ReorderQueueRequest) {
+    const meeting = await getMeeting(meetingId);
+    if (!isChair(user, meeting)) {
+      respond(403);
+      return;
+    }
+
+    const item = meeting.queuedSpeakers[message.oldIndex];
+
+    if (!item) {
+      respond(500, { message: 'Could not find queue item' });
+      return;
+    }
+
+    if (item.id !== message.id) {
+      respond(500, { message: 'Stale request, denied' });
+      return;
+    }
+
+    if (message.newIndex < 0 || message.newIndex >= meeting.queuedSpeakers.length) {
+      respond(400, { message: 'Cant move past beginning or end' });
+    }
+
+    if (
+      Math.abs(message.newIndex - message.oldIndex) === 1 &&
+      meeting.queuedSpeakers[message.newIndex].type !==
+        meeting.queuedSpeakers[message.oldIndex].type
+    ) {
+      // we're moving across a type boundary, so just update the type.
+      meeting.queuedSpeakers[message.oldIndex].type = meeting.queuedSpeakers[message.newIndex].type;
+      await updateMeeting(meeting);
+      respond(200);
+      emitAll(meetingId, 'updateQueuedSpeaker', meeting.queuedSpeakers[message.oldIndex]);
+    } else {
+      // actually move the speaker
+      meeting.queuedSpeakers.splice(
+        message.newIndex,
+        0,
+        meeting.queuedSpeakers.splice(message.oldIndex, 1)[0]
+      );
+      await updateMeeting(meeting);
+      respond(200);
+      emitAll(meetingId, 'reorderQueue', message);
+    }
   }
 
   async function newAgendaItem(respond: Responder, message: Message.NewAgendaItemRequest) {

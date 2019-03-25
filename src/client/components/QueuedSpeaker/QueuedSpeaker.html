@@ -15,6 +15,8 @@
     <div>
       {{ formatUser(speaker.user) }}
       <a v-if="isMe || $root.isChair" @click="dequeue" class="button is-small">Delete</a>
+      <a v-if="$root.isChair" @click="moveUp" class="button is-small">Move Up</a>
+      <a v-if="$root.isChair" @click="moveDown" class="button is-small">Move Down</a>
     </div>
   </div>
 </div>

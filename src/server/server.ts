@@ -14,13 +14,20 @@ import socketHandler from './socket-hander';
 import DocumentDBSession = require('documentdb-session');
 import * as dbConstants from './db';
 import * as bodyParser from 'body-parser';
+import * as cookieSession from 'cookie-session';
 
 const app = express();
-const server = new Server(app as any);// this seems to work, and I see docs about it, but typings complain
+app.use(
+  cookieSession({
+    name: 'session',
+    keys: ['danielwtf']
+  })
+);
+const server = new Server(app as any); // this seems to work, and I see docs about it, but typings complain
 const io = socketio(server, { perMessageDeflate: false });
 const port = process.env.PORT || 3000;
 log.info('Starting server');
-server.listen(port, function () {
+server.listen(port, function() {
   log.info('Application started and listening on port ' + port);
 });
 
@@ -48,7 +55,7 @@ app.use(function requireHTTPS(req, res, next) {
   next();
 });
 
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
   client.trackNodeHttpRequest({ request: req, response: res });
   next();
 });
@@ -60,7 +67,7 @@ app.use(passport.session());
 app.use(routes);
 app.use(express.static('dist/client/'));
 
-io.use(function (socket, next) {
+io.use(function(socket, next) {
   var req = socket.handshake;
   var res = {};
   session(req as any, res as any, next);

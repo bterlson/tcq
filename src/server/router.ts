@@ -37,6 +37,7 @@ router.get('/', async (req, res) => {
 
 router.get('/meeting/:id', async (req, res) => {
   if (!req.isAuthenticated()) {
+    req.session!.meetingId = req.params.id;
     res.redirect('/login');
     return;
   }
@@ -129,18 +130,21 @@ router.get(
   passport.authenticate('github', { failureRedirect: '/login' }),
   function(req, res) {
     // Successful authentication, redirect home.
-    res.redirect('/');
-    return;
+    if (req.session!.meetingId) {
+      res.redirect('/meeting/' + req.session!.meetingId);
+      delete req.session!.meetingId;
+    } else {
+      res.redirect('/');
+    }
   }
 );
 
 router.get('/logout', function(req, res) {
   req.logout();
   if (req.session) {
-    req.session.destroy(() => {
-      res.redirect('/');
-    });
+    (req.session as any) = null;
   }
+  res.redirect('/');
 });
 
 export default router;

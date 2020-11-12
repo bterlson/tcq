@@ -15,14 +15,23 @@ export const TempCheck = template(
       },
     },
     methods: {
-      react: async function (type: ReactionTypes) {
+      async react(type: ReactionTypes) {
         await request('newReactionRequest', {
           reactionType: type,
         } as Message.NewReactionRequest);
       },
-      countReactions: function(reactions: Reaction[], type: ReactionTypes) {
+      countReactions(type: ReactionTypes) {
         if (this.reactions) {
           return this.reactions.filter(reaction => reaction.reaction == type).length;
+        }
+        return 0;
+      },
+      listNames(type: ReactionTypes) {
+        if (this.reactions) {
+          return this.reactions
+            .filter(reaction => reaction.reaction == type)
+            .map(reaction => reaction.user.name)
+            .join(", ");
         }
         return 0;
       },

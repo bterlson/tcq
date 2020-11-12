@@ -4,3 +4,45 @@
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
+
+.reaction-item:hover + .hide {
+  display: inline-block;
+}
+
+.floating {
+  background-color: #f8f8f8;
+  border: 1px solid #c8c8c8;
+  border-radius: 5px;
+  text-align: center;
+  padding: 10px;
+  min-width: 50px;
+  max-width: 150px;
+  position: absolute;
+  margin-top: 50px;
+  margin-left: -50px;
+}
+
+.floating .arrow {
+  border-style: solid;
+  position: absolute;
+}
+
+.top {
+  border-color: transparent transparent #c8c8c8 transparent;
+  border-width: 0px 8px 8px 8px;
+  top: -8px;
+}
+
+.top:after {
+  border-color: transparent transparent #f8f8f8 transparent;
+  border-style: solid;
+  border-width: 0px 7px 7px 7px;
+  top: 1px;
+  content: '';
+  position: absolute;
+  left: -7px;
+}
+
+.hide {
+  display: none;
+}

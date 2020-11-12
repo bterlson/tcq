@@ -18,14 +18,14 @@
               class="button is-small"
               @click="trackTemp"
             >
-              Check Agenda Item Temperature
+              Check Temperature
             </button>
             <button
               v-if="$root.isChair && trackTemperature"
               class="button is-small"
               @click="stopTemp"
             >
-              Stop Agenda Item Temperature
+              Stop Temperature
             </button>
             <div class="data-block-details" v-if="trackTemperature">
               <temp-check :reactions="reactions"></temp-check>

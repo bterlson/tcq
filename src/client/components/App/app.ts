@@ -6,6 +6,7 @@ import { QueueControl } from '../QueueControl/QueueControl';
 import { Agenda } from '../Agenda/Agenda';
 
 import Speaker from '../../../shared/Speaker';
+import Reaction from '../../../shared/Reaction';
 import appTemplate from './app.html';
 
 import './app.scss';
@@ -50,6 +51,8 @@ let AppComponent = Vue.extend({
       currentSpeaker: undefined,
       currentTopic: undefined,
       queuedSpeakers: [],
+      reactions: [],
+      trackTemperature: false,
       currentAgendaItem: undefined,
       agenda: [],
       view: 'agenda',
@@ -118,6 +121,26 @@ let AppComponent = Vue.extend({
     socket.on('newCurrentSpeaker', data => {
       this.currentSpeaker = data;
       this.queuedSpeakers.shift();
+    });
+
+    socket.on('newReaction', data => {
+      console.log("new", data)
+      console.log(this.reactions)
+      this.reactions.push(data);
+    });
+    
+    socket.on('deleteReaction', data => {
+      let index = this.reactions.findIndex((r: Reaction) => {   
+        return r.reaction == data.reaction && r.user.ghid == data.user.ghid
+      });
+      this.reactions.splice(index, 1);
+    });
+
+    socket.on('trackTemperature', isTracking => {
+      if (!isTracking) {
+        this.reactions = [];
+      }
+      this.trackTemperature = isTracking;
     });
 
     socket.on('newAgendaItem', data => {

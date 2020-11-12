@@ -1,32 +1,37 @@
-
-<div id=app>
+<div id="app">
   <nav class="navbar" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
-      <a class="navbar-item" href="/" id=tcq-logo>TCQ</a>
-      <button class="button navbar-burger" @click=toggleMenu>
+      <a class="navbar-item" href="/" id="tcq-logo">TCQ</a>
+      <button class="button navbar-burger" @click="toggleMenu">
         <span></span>
         <span></span>
         <span></span>
       </button>
     </div>
-    <div class="navbar-menu" ref="menu"><!-- add is-active here when clicking hamburger-->
+    <div class="navbar-menu" ref="menu">
+      <!-- add is-active here when clicking hamburger-->
       <div class="navbar-start">
-        <a class="navbar-item" @click=showAgenda>Agenda</a>
-        <a class="navbar-item is-active" @click=showQueue>Queue</a>
+        <a class="navbar-item" @click="showAgenda">Agenda</a>
+        <a class="navbar-item is-active" @click="showQueue">Queue</a>
       </div>
       <div class="navbar-end">
         <a class="navbar-item" href="/logout">Log Out</a>
       </div>
     </div>
   </nav>
-  <agenda ref=agenda id=agenda :agenda=agenda :socket=socket></agenda>
-  <queue-control ref=queue id=queue style="display:none;"
-    :currentAgendaItem=currentAgendaItem
-    :currentSpeaker=currentSpeaker
-    :currentTopic=currentTopic
-    :queuedSpeakers=queuedSpeakers
-    :timeboxEnd=timeboxEnd
-    :timeboxSecondsLeft=timeboxSecondsLeft
-    :socket=socket
-    ></queue-control>
+  <agenda ref="agenda" id="agenda" :agenda="agenda" :socket="socket"></agenda>
+  <queue-control
+    ref="queue"
+    id="queue"
+    style="display: none"
+    :currentAgendaItem="currentAgendaItem"
+    :currentSpeaker="currentSpeaker"
+    :currentTopic="currentTopic"
+    :queuedSpeakers="queuedSpeakers"
+    :reactions="reactions"
+    :trackTemperature="trackTemperature"
+    :timeboxEnd="timeboxEnd"
+    :timeboxSecondsLeft="timeboxSecondsLeft"
+    :socket="socket"
+  ></queue-control>
 </div>

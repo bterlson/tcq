@@ -110,6 +110,8 @@ router.post('/meetings', async (req, res) => {
     timeboxSecondsLeft: undefined,
     agenda: [],
     queuedSpeakers: [],
+    reactions: [],
+    trackTemperature: false,
     id
   };
 

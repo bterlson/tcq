@@ -18,6 +18,11 @@ $primary-invert: #222;
   font-size: 24px;
 }
 
+.temp-control {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
 .agenda-item-header,
 .agenda-item-header:not(:last-child) {
   @extend .data-block-header;

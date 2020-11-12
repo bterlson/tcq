@@ -1,0 +1,16 @@
+<div class="temp-check">
+  <div class="reaction-controls">
+    <button class="reaction-item button" @click="react('❤️')">
+      ❤️ {{countReactions(reactions, '❤️')}}
+    </button>
+    <button class="reaction-item button" @click="react('👍')">
+      👍 {{countReactions(reactions, '👍')}}
+    </button>
+    <button class="reaction-item button" @click="react('🤷')">
+      🤷 {{countReactions(reactions, '🤷')}}
+    </button>
+    <button class="reaction-item button" @click="react('😕')">
+      😕 {{countReactions(reactions, '😕')}}
+    </button>
+  </div>
+</div>

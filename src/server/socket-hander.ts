@@ -2,6 +2,7 @@ import Meeting from '../shared/Meeting';
 import Speaker from '../shared/Speaker';
 import AgendaItem from '../shared/AgendaItem';
 import User, { getByUsername } from './User';
+import Reaction, { ReactionTypes } from '../shared/Reaction';
 import GitHubAuthenticatedUser from '../shared/GitHubAuthenticatedUser';
 import * as socketio from 'socket.io';
 import { isChair } from './User';
@@ -71,6 +72,8 @@ export default async function connection(socket: Message.ServerSocket) {
   socket.on('reorderQueueRequest', instrumentSocketFn(reorderQueue));
   socket.on('deleteAgendaItemRequest', instrumentSocketFn(deleteAgendaItem));
   socket.on('nextAgendaItemRequest', instrumentSocketFn(nextAgendaItem));
+  socket.on('newReactionRequest', instrumentSocketFn(newReaction));
+  socket.on('trackTemperatureRequest', instrumentSocketFn(trackTemperature));
 
   async function nextAgendaItem(respond: Responder, message: Message.NextAgendaItemRequest) {
     const meeting = await getMeeting(meetingId);
@@ -232,6 +235,45 @@ export default async function connection(socket: Message.ServerSocket) {
     });
     client.trackEvent({ name: 'New Speaker' });
     respond(200);
+  }
+
+  async function newReaction(respond: Responder, message: Message.NewReactionRequest) {
+    const reaction: Reaction = {
+      user: user,
+      reaction: message.reactionType
+    };
+
+    const meeting = await getMeeting(meetingId);
+    if (!meeting.reactions) {
+      meeting.reactions = [];
+    }
+
+    const { reactions } = meeting;
+
+    let index = reactions.findIndex(function(r) {
+      return r.reaction == reaction.reaction && r.user.ghid == reaction.user.ghid}
+    );
+    
+    if (index === -1) {
+      reactions.push(reaction);
+      await updateMeeting(meeting);
+      emitAll(meetingId, 'newReaction', reaction);
+    } else {
+      reactions.splice(index, 1);
+      await updateMeeting(meeting);
+      emitAll(meetingId, 'deleteReaction', reaction);
+    }
+    respond(200);
+  }
+
+  async function trackTemperature(respond: Responder, message: Message.TrackTemperatureRequest) {
+    const meeting = await getMeeting(meetingId);
+    if (!message.track) {
+      meeting.reactions = [];
+      await updateMeeting(meeting);
+    }
+    meeting.trackTemperature = message.track;
+    emitAll(meetingId, 'trackTemperature', message.track);
   }
 
   async function deleteQueuedSpeaker(

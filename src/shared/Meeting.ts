@@ -1,4 +1,5 @@
 import Speaker from './Speaker';
+import Reaction from './Reaction';
 import AgendaItem from './AgendaItem';
 import User from './User';
 interface Meeting {
@@ -11,6 +12,8 @@ interface Meeting {
   id: string;
   timeboxEnd: Date | string | undefined;
   timeboxSecondsLeft: number | undefined;
+  reactions: Reaction[];
+  trackTemperature: boolean;
 }
 
 export default Meeting;

@@ -121,7 +121,7 @@ router.post('/meetings', async (req, res) => {
   res.end();
 });
 
-router.get('/login', function(req, res) {
+router.get('/login', function (req, res) {
   client.trackEvent({ name: 'home-login', properties: { ref: req.query.ref } });
   res.redirect('/auth/github');
 });
@@ -130,7 +130,7 @@ router.get('/auth/github', passport.authenticate('github'));
 router.get(
   '/auth/github/callback',
   passport.authenticate('github', { failureRedirect: '/login' }),
-  function(req, res) {
+  function (req, res) {
     // Successful authentication, redirect home.
     if (req.session!.meetingId) {
       res.redirect('/meeting/' + req.session!.meetingId);
@@ -141,12 +141,17 @@ router.get(
   }
 );
 
-router.get('/logout', function(req, res) {
+router.get('/logout', function (req, res) {
   req.logout();
   if (req.session) {
-    (req.session as any) = null;
+    req.session.destroy(() => {
+      // TODO: Handle errors here?
+      res.redirect('/');
+    });
+  } else {
+    // not sure this branch happens
+    res.redirect('/');
   }
-  res.redirect('/');
 });
 
 export default router;

@@ -5,6 +5,17 @@
   margin-bottom: 1rem;
 }
 
+.reaction-container {
+  display: inline-block;
+  font-size: 1em;
+  width: 90px;
+  text-align: center;
+}
+
+.reaction-item {
+  width: 90px;
+}
+
 .reaction-item:hover + .hide {
   display: inline-block;
 }
@@ -20,6 +31,7 @@
   position: absolute;
   margin-top: 50px;
   margin-left: -50px;
+  z-index: 100;
 }
 
 .floating .arrow {

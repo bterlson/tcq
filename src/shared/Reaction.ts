@@ -5,4 +5,4 @@ export default interface Reaction {
   user: User;
 }
 
-export type ReactionTypes = '❤️' | '👍' | '👀' | '🤷' | '😕';
+export type ReactionTypes = '❤️' | '👍' | '👀' | '🤷' | '😕' | '❓';

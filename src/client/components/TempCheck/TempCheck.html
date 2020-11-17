@@ -1,38 +1,63 @@
 <div class="temp-check">
   <div class="reaction-controls">
     <span class="reaction-container">
-      <button title="Strong Positive" class="reaction-item button" @click="react('❤️')">❤️ {{countReactions('❤️')}}</button>
-      <div class="floating hide">
+      <p><strong>Strong Positive</strong></p>
+      <button title="Strong Positive" class="reaction-item button" @click="react('❤️')">
+        ❤️ {{countReactions('❤️')}}
+      </button>
+      <div class="floating hide" v-if="countReactions('❤️') > 0">
         <div class="arrow top right"></div>
-        <span><strong>Strong Positive</strong></br>{{listNames('❤️')}}</span>
+        <span>{{listNames('❤️')}}</span>
       </div>
     </span>
     <span class="reaction-container">
-      <button title="Positive" class="reaction-item button" @click="react('👍')">👍 {{countReactions('👍')}}</button>
-      <div class="floating hide">
+      <p><strong>Positive</strong></p>
+      <button title="Positive" class="reaction-item button" @click="react('👍')">
+        👍 {{countReactions('👍')}}
+      </button>
+      <div class="floating hide" v-if="countReactions('👍') > 0">
         <div class="arrow top right"></div>
-        <span><strong>Positive</strong></br>{{listNames('👍')}}</span>
+        <span>{{listNames('👍')}}</span>
       </div>
     </span>
     <span class="reaction-container">
-      <button title="Following" class="reaction-item button" @click="react('👀')">👀 {{countReactions('👀')}}</button>
-      <div class="floating hide">
+      <p><strong>Following</strong></p>
+      <button title="Following" class="reaction-item button" @click="react('👀')">
+        👀 {{countReactions('👀')}}
+      </button>
+      <div class="floating hide" v-if="countReactions('👀') > 0">
         <div class="arrow top right"></div>
-        <span><strong>Following</strong></br>{{listNames('👀')}}</span>
+        <span>{{listNames('👀')}}</span>
       </div>
     </span>
     <span class="reaction-container">
-      <button title="Indifferent" class="reaction-item button" @click="react('🤷')">🤷 {{countReactions('🤷')}}</button>
-      <div class="floating hide">
+      <p><strong>Confused</strong></p>
+      <button title="Confused" class="reaction-item button" @click="react('❓')">
+        ❓ {{countReactions('❓')}}
+      </button>
+      <div class="floating hide" v-if="countReactions('❓') > 0">
         <div class="arrow top right"></div>
-        <span><strong>Indifferent</strong></br>{{listNames('🤷')}}</span>
+        <span>{{listNames('❓')}}</span>
       </div>
     </span>
     <span class="reaction-container">
-      <button title="Unconvinced" class="reaction-item button" @click="react('😕')">😕 {{countReactions('😕')}}</button>
-      <div class="floating hide">
+      <p><strong>Indifferent</strong></p>
+      <button title="Indifferent" class="reaction-item button" @click="react('🤷')">
+        🤷 {{countReactions('🤷')}}
+      </button>
+      <div class="floating hide" v-if="countReactions('🤷') > 0">
         <div class="arrow top right"></div>
-        <span><strong>Unconvinced</strong></br>{{listNames('😕')}}</span>
+        <span>{{listNames('🤷')}}</span>
+      </div>
+    </span>
+    <span class="reaction-container">
+      <p><strong>Unconvinced</strong></p>
+      <button title="Unconvinced" class="reaction-item button" @click="react('😕')">
+        😕 {{countReactions('😕')}}
+      </button>
+      <div class="floating hide" v-if="countReactions('😕') > 0">
+        <div class="arrow top right"></div>
+        <span>{{listNames('😕')}}</span>
       </div>
     </span>
   </div>

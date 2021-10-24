@@ -14,7 +14,7 @@ export default new GitHubStrategy(
     callbackURL,
     scope: ['user:email'],
   },
-  function (accessToken, refreshToken, profile, cb) {
+  function (accessToken: string, refreshToken: string, profile: any, cb: any) {
     let user: GHAuthUser = {
       name: profile.displayName,
       ghUsername: profile.username!, // why might this be undefined?

@@ -33,6 +33,14 @@ $primary-invert: #222;
   font-size: 24px;
 }
 
+.navbar .navbar-item {
+  border-block-end: 2px solid transparent;
+}
+
+.navbar .navbar-item.is-active {
+  border-color: currentcolor;
+}
+
 .temp-control {
   margin-top: 1em;
   margin-bottom: 0.5em;

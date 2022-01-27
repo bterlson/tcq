@@ -2,6 +2,21 @@ $primary: hsl(48, 100%, 67%);
 $primary-invert: #222;
 @import '~bulma';
 
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+#app > * {
+  flex: 1;
+  overflow: auto;
+}
+
+#app > nav {
+  flex: revert;
+}
+
 #tcq-logo {
   font-size: 32px;
 }

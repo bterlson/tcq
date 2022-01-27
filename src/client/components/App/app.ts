@@ -82,12 +82,23 @@ let AppComponent = Vue.extend({
       (this.$refs['menu'] as Element).classList.toggle('is-active');
     },
 
-    showQueue() {
+    setActiveMenuItem(activeMenuItem: Element) {
+      const menu = this.$refs['menu'] as Element;
+      const menuItems = menu.querySelectorAll(':scope > .navbar-start > .navbar-item');
+      menuItems.forEach(menuItem => {
+        const isActive = menuItem.closest('.navbar-item') === activeMenuItem;
+        menuItem.classList.toggle('is-active', isActive);
+      });
+    },
+
+    showQueue(evt: Event) {
+      this.setActiveMenuItem(evt.target.closest('.navbar-item'));
       (this.$refs['agenda'] as Vue).$el.setAttribute('style', 'display: none;');
       (this.$refs['queue'] as Vue).$el.setAttribute('style', '');
     },
 
-    showAgenda() {
+    showAgenda(evt: Event) {
+      this.setActiveMenuItem(evt.target.closest('.navbar-item'));
       (this.$refs['queue'] as Vue).$el.setAttribute('style', 'display: none;');
       (this.$refs['agenda'] as Vue).$el.setAttribute('style', '');
     }

@@ -34,7 +34,8 @@ $primary-invert: #222;
 }
 
 .navbar .navbar-item.is-active {
-  box-shadow: inset 0px -2px 0 0 currentcolor;
+  /* a 2px thick fill just inside the bottom edge */
+  box-shadow: inset 0px -2px currentcolor;
 }
 
 .temp-control {

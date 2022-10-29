@@ -46,7 +46,7 @@
     "passport": "^0.4.0",
     "passport-github2": "^0.1.12",
     "socket.io": "^2.2.0",
-    "socket.io-client": "^2.0.3",
+    "socket.io-client": "^2.5.0",
     "uuid": "^3.1.0",
     "vue": "^2.5.2",
     "vuedraggable": "^2.14.1"

@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { Session } from 'express-session';
 import passport from './passport';
 import * as express from 'express';
 import uuid = require('uuid');
@@ -11,6 +12,13 @@ import { readFile } from 'fs';
 import { createMeeting, getMeeting } from './db';
 import * as b64 from 'base64-url';
 import User, { getByUsername, fromGHAU, getByUsernames } from './User';
+
+declare module 'express-session' {
+  interface SessionData {
+    meetingId: any;
+  }
+}
+
 const rf = promisify(readFile);
 import client from './telemetry';
 

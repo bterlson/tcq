@@ -1,17 +1,7 @@
 var path = require('path');
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-
-var extractSass = new ExtractTextPlugin({
-  filename: '[name].css',
-  allChunks: true,
-  ignoreOrder: true
-});
-
-function resolve(dir) {
-  return path.join(__dirname, '..', dir);
-}
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 function resolve(dir) {
   return path.join(__dirname, '..', dir);
@@ -49,18 +39,9 @@ module.exports = {
       },
       {
         test: /\.scss$/,
-        use: extractSass.extract({
-          use: [
-            {
-              loader: 'css-loader'
-            },
-            {
-              loader: 'sass-loader'
-            }
-          ]
-        })
-      }
-    ]
+        use: ['style-loader', 'css-loader', 'sass-loader'],
+      },
+    ],
   },
   resolve: {
     extensions: ['.ts', '.js', '.json'],
@@ -93,9 +74,6 @@ module.exports = {
       inject: 'head',
       template: './src/client/pages/home/home.html'
     }),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'common'
-    }),
-    extractSass
-  ]
+    new MiniCssExtractPlugin(),
+  ],
 };

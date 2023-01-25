@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { Session } from 'express-session';
 import passport from './passport';
 import * as express from 'express';
-import uuid = require('uuid');
+const uuid = require('uuid');
 import { isChair } from './chairs';
 import Meeting from '../shared/Meeting';
 import { ensureLoggedIn } from 'connect-ensure-login';

@@ -201,6 +201,11 @@ export default async function connection(socket: Message.ServerSocket) {
       user: owner
     };
 
+    if (isNaN(agendaItem.timebox)) {
+      respond(400, { message: 'Timebox duration required' });
+      return;
+    }
+
     meeting.agenda.push(agendaItem);
     await updateMeeting(meeting);
     client.trackEvent({ name: 'New Agenda Item' });

@@ -1,13 +1,9 @@
-import * as GHA from 'github';
-
-var v: GHA.SearchUsersParams;
+import { Octokit } from '@octokit/rest';
 
 export default function(token: string) {
-  const gha = new GHA();
-  gha.authenticate({
+  const gha = new Octokit({
     type: 'oauth',
-    token: token
+    token: token,
   });
-
   return gha;
 }

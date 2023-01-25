@@ -12,7 +12,13 @@ import { readFile } from 'fs';
 import { createMeeting, getMeeting } from './db';
 import * as b64 from 'base64-url';
 import User, { getByUsername, fromGHAU, getByUsernames } from './User';
+import GitHubAuthenticatedUser from '../shared/GitHubAuthenticatedUser';
 
+declare global {
+  namespace Express {
+    interface User extends GitHubAuthenticatedUser {}
+  }
+}
 declare module 'express-session' {
   interface SessionData {
     meetingId: any;

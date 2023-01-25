@@ -27,6 +27,7 @@
     "node": ">=12"
   },
   "dependencies": {
+    "@octokit/rest": "^19.0.7",
     "applicationinsights": "^1.0.0",
     "axios": "^0.21.2",
     "base64-url": "^2.0.0",
@@ -41,7 +42,6 @@
     "express": "^4.18.2",
     "express-bunyan-logger": "^1.3.2",
     "express-session": "^1.17.3",
-    "github": "^11.0.0",
     "p-limit": "^1.2.0",
     "passport": "^0.4.0",
     "passport-github2": "^0.1.12",

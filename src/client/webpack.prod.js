@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 // Read up more at
 //  - https://webpack.js.org/guides/production/
@@ -11,6 +12,7 @@ module.exports = merge(common, {
   devtool: 'source-map',
   optimization: {
     minimize: true,
+    minimizer: [`...`, new CssMinimizerPlugin()],
   },
   plugins: [
     // short-circuits all Vue.js warning code

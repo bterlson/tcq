@@ -42,7 +42,7 @@
         <label class="label">&nbsp;</label>
         <button ref=create-button class="button is-primary"
           @click="createNewAgendaItem"
-          v-bind:disabled="newAgendaItem.name.length === 0"
+          v-bind:disabled="newAgendaItem.name.length === 0 || newAgendaItem.timebox === undefined"
           >Create</button>
         <button class="button is-danger" @click=cancelForm>Cancel</button>
       </div>

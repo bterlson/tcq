@@ -1,17 +1,7 @@
 var path = require('path');
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-
-var extractSass = new ExtractTextPlugin({
-  filename: '[name].css',
-  allChunks: true,
-  ignoreOrder: true
-});
-
-function resolve(dir) {
-  return path.join(__dirname, '..', dir);
-}
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 function resolve(dir) {
   return path.join(__dirname, '..', dir);
@@ -21,19 +11,24 @@ module.exports = {
   entry: {
     app: './src/client/pages/meeting/meeting.ts',
     home: './src/client/pages/home/home.ts',
-    new: './src/client/pages/new/new.ts'
+    new: './src/client/pages/new/new.ts',
   },
   output: {
     path: path.resolve(__dirname, '../../dist/client/'),
     filename: '[name].build.js',
-    publicPath: '/'
+    publicPath: '/',
+  },
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+    },
   },
   module: {
     rules: [
       {
         test: /\.tsx?$/,
         loader: 'ts-loader',
-        exclude: /node_modules/
+        exclude: /node_modules/,
       },
       {
         test: /\.html$/,
@@ -41,61 +36,64 @@ module.exports = {
         exclude: [
           resolve('client/pages/meeting/meeting.html'),
           resolve('client/pages/home/home.html'),
-          resolve('client/pages/new/new.html')
+          resolve('client/pages/new/new.html'),
         ],
         options: {
-          scoped: true
-        }
+          scoped: true,
+        },
       },
       {
-        test: /\.scss$/,
-        use: extractSass.extract({
-          use: [
-            {
-              loader: 'css-loader'
+        test: /\.(sa|sc|c)ss$/,
+        use: [
+          { loader: MiniCssExtractPlugin.loader, options: { esModule: false } },
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 1,
+              // dev mode uses inline-source-map which would map to false, so force it to true
+              sourceMap: true,
             },
-            {
-              loader: 'sass-loader'
-            }
-          ]
-        })
-      }
-    ]
+          },
+          'sass-loader',
+        ],
+      },
+    ],
   },
   resolve: {
     extensions: ['.ts', '.js', '.json'],
     alias: {
       vue$: 'vue/dist/vue.esm.js',
-      'socket.io-client': 'socket.io-client/dist/socket.io.slim.js'
-    }
+      'socket.io-client': 'socket.io-client/dist/socket.io.slim.js',
+    },
   },
   devServer: {
     historyApiFallback: true,
-    noInfo: true
+    noInfo: true,
   },
   performance: {
-    hints: false
+    hints: false,
   },
   plugins: [
     new HtmlWebpackPlugin({
       filename: './meeting.html',
       chunks: ['common', 'app'],
-      template: './src/client/pages/meeting/meeting.html'
+      template: './src/client/pages/meeting/meeting.html',
     }),
     new HtmlWebpackPlugin({
       filename: './new.html',
       chunks: ['common', 'new'],
-      template: './src/client/pages/new/new.html'
+      template: './src/client/pages/new/new.html',
     }),
     new HtmlWebpackPlugin({
       filename: './home.html',
       chunks: ['common', 'home'],
       inject: 'head',
-      template: './src/client/pages/home/home.html'
+      template: './src/client/pages/home/home.html',
     }),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'common'
+    new MiniCssExtractPlugin({
+      filename: '[name].css',
+      chunkFilename: '[id].css',
+      ignoreOrder: true,
     }),
-    extractSass
-  ]
+  ],
 };

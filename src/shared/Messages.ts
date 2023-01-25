@@ -5,6 +5,8 @@ import User from './User';
 import Reaction, { ReactionTypes } from './Reaction';
 import AgendaItem from './AgendaItem';
 import StrictEventEmitter, { StrictBroadcast } from 'strict-event-emitter-types';
+import * as SocketIOClient from 'socket.io-client';
+import * as SocketIO from 'socket.io';
 
 interface ServerEvents {
   newQueuedSpeakerRequest: NewQueuedSpeakerRequest;

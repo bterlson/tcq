@@ -10,7 +10,7 @@ import * as socketio from 'socket.io';
 import { Server } from 'http';
 import * as Session from 'express-session';
 import socketHandler from './socket-hander';
-import DocumentDBSession = require('documentdb-session');
+const DocumentDBSession = require('documentdb-session');
 import * as dbConstants from './db';
 import * as bodyParser from 'body-parser';
 

@@ -93,7 +93,7 @@ router.post('/meetings', async (req, res) => {
   // split by commas, trim, and replace leading @ from usernames
   let usernames: string[] = [];
   if (chairs.length > 0) {
-    usernames = chairs.split(',').map(s => s.trim().replace(/^@/, ''));
+    usernames = chairs.split(',').map((s) => s.trim().replace(/^@/, ''));
   }
 
   let chairUsers: User[] = [];
@@ -110,7 +110,7 @@ router.post('/meetings', async (req, res) => {
     [
       Math.floor(Math.random() * 2 ** 32),
       Math.floor(Math.random() * 2 ** 32),
-      Math.floor(Math.random() * 2 ** 32)
+      Math.floor(Math.random() * 2 ** 32),
     ],
     'binary'
   );
@@ -126,7 +126,7 @@ router.post('/meetings', async (req, res) => {
     queuedSpeakers: [],
     reactions: [],
     trackTemperature: false,
-    id
+    id,
   };
 
   await createMeeting(meeting);
@@ -135,7 +135,7 @@ router.post('/meetings', async (req, res) => {
   res.end();
 });
 
-router.get('/login', function (req, res) {
+router.get('/login', function(req, res) {
   client.trackEvent({ name: 'home-login', properties: { ref: req.query.ref } });
   res.redirect('/auth/github');
 });
@@ -144,7 +144,7 @@ router.get('/auth/github', passport.authenticate('github'));
 router.get(
   '/auth/github/callback',
   passport.authenticate('github', { failureRedirect: '/login' }),
-  function (req, res) {
+  function(req, res) {
     // Successful authentication, redirect home.
     if (req.session!.meetingId) {
       res.redirect('/meeting/' + req.session!.meetingId);
@@ -155,17 +155,14 @@ router.get(
   }
 );
 
-router.get('/logout', function (req, res) {
-  req.logout();
-  if (req.session) {
-    req.session.destroy(() => {
-      // TODO: Handle errors here?
-      res.redirect('/');
-    });
-  } else {
-    // not sure this branch happens
+router.get('/logout', function(req, res) {
+  req.logout(function(err) {
+    // TODO: Handle errors here?
+    // if (err) {
+    //   return next(err);
+    // }
     res.redirect('/');
-  }
+  });
 });
 
 export default router;

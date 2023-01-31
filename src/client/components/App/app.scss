@@ -5,7 +5,7 @@ $primary-invert: #222;
 #app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  max-height: 100vh;
 }
 
 #app > * {

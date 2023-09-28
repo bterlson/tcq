@@ -13,7 +13,6 @@ import gha from './ghapi';
 const PRIORITIES: Speaker['type'][] = ['poo', 'question', 'reply', 'topic'];
 import * as uuid from 'uuid';
 import axios from 'axios';
-import client from './telemetry';
 import { EmitEventNames } from 'strict-event-emitter-types';
 
 let socks = new Map<string, Set<Message.ServerSocket>>();

@@ -1,6 +1,5 @@
 import * as secrets from './secrets';
 // important that this block come very early as appinsights shims many things
-import client from './telemetry';
 
 import log from './logger';
 import * as express from 'express';

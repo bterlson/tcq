@@ -47,7 +47,6 @@ app.use(function requireHTTPS(req, res, next) {
 });
 
 app.use(function (req, res, next) {
-  client.trackNodeHttpRequest({ request: req, response: res });
   next();
 });
 app.use(require('express-bunyan-logger')());

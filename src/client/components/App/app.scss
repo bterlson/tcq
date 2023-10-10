@@ -2,6 +2,21 @@ $primary: hsl(48, 100%, 67%);
 $primary-invert: #222;
 @import '~bulma';
 
+#app {
+  display: flex;
+  flex-direction: column;
+  max-height: 100vh;
+}
+
+#app > * {
+  flex: 1;
+  overflow: auto;
+}
+
+#app > nav {
+  flex: none;
+}
+
 #tcq-logo {
   font-size: 32px;
 }
@@ -16,6 +31,11 @@ $primary-invert: #222;
 
 .navbar a {
   font-size: 24px;
+}
+
+.navbar .navbar-item.is-active {
+  /* a 2px thick fill just inside the bottom edge */
+  box-shadow: inset 0px -2px currentcolor;
 }
 
 .temp-control {

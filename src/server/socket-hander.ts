@@ -306,13 +306,12 @@ export default async function connection(socket: Message.ServerSocket) {
   async function nextSpeaker(respond: Responder, message: Message.NextSpeakerRequest) {
     const meeting = await getMeeting(meetingId);
     if (
-      user.ghid &&
       meeting.currentSpeaker &&
-      meeting.currentSpeaker.user.ghid !== user.ghid &&
+      ( !user.ghid || meeting.currentSpeaker.user.ghid !== user.ghid ) &&
       !isChair(user, meeting)
     ) {
       // unauthorized
-      respond(402, { message: 'not authorized' });
+      respond(403, { message: 'not authorized' });
       return;
     }
 
